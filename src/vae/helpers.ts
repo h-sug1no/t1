@@ -157,6 +157,7 @@ export class Board {
   ripples: Ripple[];
   ui: {
     container: HTMLElement | null;
+    // eslint-disable-next-line no-undef
     rows: NodeListOf<HTMLElement> | undefined;
   };
   isPlaying: boolean;
@@ -378,6 +379,7 @@ export class Board {
     }
   }
 
+  // eslint-disable-next-line no-undef
   _clearPreviousAnimation(row: NodeListOf<Element>) {
     for (let j = 0; j < 16; j++) {
       row[j].classList.remove("bar");

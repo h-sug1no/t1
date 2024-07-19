@@ -18,5 +18,6 @@ module.exports = {
     "react-hooks/exhaustive-deps": "warn",
     "no-console": "warn",
     "react/jsx-key": "error",
+    "no-undef": "error",
   },
 };

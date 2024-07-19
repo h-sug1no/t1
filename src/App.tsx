@@ -249,15 +249,16 @@ const AudioDataView = () => {
 };
 
 function NavigationMenu() {
-  return [{ pathname: "/", label: "VAEApp" }, { pathname: "/audio" }].map(
-    ({ pathname, label }) => {
-      return window.location.pathname === pathname ? null : (
-        <div key={`${pathname}_${label}`}>
-          <a href={pathname}>{label ?? pathname}</a>
-        </div>
-      );
-    }
-  );
+  return [
+    { pathname: "/VAEApp", label: "VAEApp" },
+    { pathname: "/", label: "audio" },
+  ].map(({ pathname, label }) => {
+    return window.location.pathname === pathname ? null : (
+      <div key={`${pathname}_${label}`}>
+        <a href={pathname}>{label ?? pathname}</a>
+      </div>
+    );
+  });
 }
 
 function App() {
@@ -266,7 +267,7 @@ function App() {
     return (
       <>
         <NavigationMenu />
-        {window.location.pathname === "/audio" ? (
+        {window.location.pathname === "/" ? (
           <div className="App">
             <CountView />
             <AudioDataView />
