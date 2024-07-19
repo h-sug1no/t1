@@ -1,6 +1,6 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
-import React from "react";
+import React, { useRef } from "react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import "./App.css";
 import { AppContext, useAppContext, useAppContextReducer } from "./AppContext";
@@ -33,6 +33,9 @@ const CountView = () => {
 const AudioUIView = () => {
   const [, setRepaintCount] = useState(0);
   const { state } = useAppContext();
+  const { audioData = {} } = state;
+  const { audioElm } = audioData;
+
   useEffect(() => {
     let requestId: number;
     const draw = () => {
@@ -47,8 +50,31 @@ const AudioUIView = () => {
     };
   }, []);
 
-  const { audioData = {} } = state;
-  const { audioElm } = audioData;
+  const playbackRateInputRef = useRef({
+    tid: 0,
+    value: 1,
+  });
+  const onPlaybackRateInput = useCallback(
+    (e) => {
+      const { current } = playbackRateInputRef;
+      const v = Number(e.target.value);
+      if (v <= 0) {
+        return;
+      }
+      current.value = v;
+      window.clearTimeout(current.tid);
+      current.tid = window.setTimeout(() => {
+        if (audioElm) {
+          audioElm.playbackRate = current.value;
+        }
+        current.tid = 0;
+      }, 1000);
+    },
+    [audioElm]
+  );
+
+  const { current: playbackRateInput } = playbackRateInputRef;
+  const isPending = !!playbackRateInput.tid;
   const { currentTime, duration, paused, playbackRate, loop } = audioElm
     ? audioElm
     : {
@@ -76,7 +102,7 @@ const AudioUIView = () => {
             >
               {paused ? "play" : "pause"}
             </button>
-            <label>
+            <label className="loop-label">
               <input
                 type="checkbox"
                 className="loop-checkbox"
@@ -87,10 +113,31 @@ const AudioUIView = () => {
               />
               : loop
             </label>
+            <label className="playbackRate-label">
+              playbackRate:
+              <input
+                className={isPending ? "pending" : null}
+                type="number"
+                min="0.1"
+                max="5"
+                value={isPending ? playbackRateInput.value : playbackRate}
+                onInput={onPlaybackRateInput}
+              ></input>
+            </label>
           </div>
         </div>
       ) : null,
-    [audioElm, currentTime, duration, loop, paused, playbackRate]
+    [
+      audioElm,
+      currentTime,
+      duration,
+      isPending,
+      loop,
+      onPlaybackRateInput,
+      paused,
+      playbackRate,
+      playbackRateInput.value,
+    ]
   );
 
   // test
@@ -148,7 +195,12 @@ const AudioDataView = () => {
       <div>
         {audioData?.url}
         <div>
-          <textarea onChange={() => {}}></textarea>
+          <textarea
+            id="audio-resource-url"
+            autoComplete="on"
+            title="specify url of audio resource"
+            onChange={() => {}}
+          ></textarea>
         </div>
         <div>
           {audioData?.loading && "Loading..."}
