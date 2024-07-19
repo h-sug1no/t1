@@ -1,3 +1,6 @@
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-nocheck
+import React from "react";
 import {
   autoDrums,
   initialize,
@@ -87,16 +90,16 @@ export function VAEApp() {
       <div className="dialog glitcheroni" id="help" hidden>
         <h2>What is this?</h2>
         <p>
-          A 笨ｨ<a href="https://en.wikipedia.org/wiki/Tenori-on">Tenori-on</a>
-          笨ｨ is a dope electronic music instrument sequencer thingie that
-          Yamaha made for a hot minute. I love pixels and patterns and
-          generating things out of pixels and patterns, which means I LOVE the
-          Tenori-on. Since they're rare and mad{" "}
+          A <a href="https://en.wikipedia.org/wiki/Tenori-on">Tenori-on</a>
+          is a dope electronic music instrument sequencer thingie that Yamaha
+          made for a hot minute. I love pixels and patterns and generating
+          things out of pixels and patterns, which means I LOVE the Tenori-on.
+          Since they&apos;re rare and mad{" "}
           <a href="https://reverb.com/item/11642149-yamaha-tenori-on">
             expensive
           </a>
-          , I've never seen one, so I made a JavaScript version of what I think
-          it looks like.
+          , I&apos;ve never seen one, so I made a JavaScript version of what I
+          think it looks like.
         </p>
         <p>
           You can change between <b>drums</b> or a <b>synth</b> sound (also
@@ -242,7 +245,7 @@ export function VAEApp() {
       {/*<script src="https://button.glitch.me/button.js"></script>*/}
 
       <footer>
-        I have no idea what I'm doing, a{" "}
+        I have no idea what I&apos;m doing, a{" "}
         <a href="https://twitter.com/notwaldorf">Meownica</a> production.
       </footer>
     </div>

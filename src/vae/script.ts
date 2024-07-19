@@ -1,4 +1,4 @@
-import { MusicRNN, MusicVAE } from "@magenta/music";
+import { MusicRNN, MusicVAE } from "@magenta/music/esm";
 import { Board, NoiseyMakey, Cell } from "./helpers";
 
 let isMouseDown = false;

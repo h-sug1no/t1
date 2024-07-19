@@ -5,10 +5,11 @@ module.exports = {
     "eslint:recommended",
     "plugin:@typescript-eslint/recommended",
     "plugin:react-hooks/recommended",
+    "plugin:react/recommended",
   ],
   ignorePatterns: ["dist", ".eslintrc.cjs"],
   parser: "@typescript-eslint/parser",
-  plugins: ["react-refresh", "@typescript-eslint"],
+  plugins: ["react", "react-refresh", "@typescript-eslint"],
   rules: {
     "react-refresh/only-export-components": [
       "warn",
@@ -16,5 +17,6 @@ module.exports = {
     ],
     "react-hooks/exhaustive-deps": "warn",
     "no-console": "warn",
+    "react/jsx-key": "error",
   },
 };

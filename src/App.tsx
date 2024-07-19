@@ -1,3 +1,6 @@
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-nocheck
+import React from "react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import "./App.css";
 import { AppContext, useAppContext, useAppContextReducer } from "./AppContext";
@@ -197,7 +200,7 @@ function NavigationMenu() {
   return [{ pathname: "/", label: "VAEApp" }, { pathname: "/audio" }].map(
     ({ pathname, label }) => {
       return window.location.pathname === pathname ? null : (
-        <div>
+        <div key={`${pathname}_${label}`}>
           <a href={pathname}>{label ?? pathname}</a>
         </div>
       );

@@ -1,4 +1,4 @@
-import { INoteSequence, Player } from "@magenta/music";
+import { INoteSequence, Player } from "@magenta/music/esm/";
 import * as Tone from "tone";
 
 export type Cell = {
@@ -116,6 +116,7 @@ export class NoiseyMakey {
       // @ts-ignore
       this.magentaPlayer.drumKit.playNote(this.magentaPitches[which]);
     } catch (e) {
+      // eslint-disable-next-line no-console
       console.error(e);
     }
   }
@@ -251,6 +252,7 @@ export class Board {
     if (
       JSON.stringify(sequence.notes) === JSON.stringify(originalSequence.notes)
     ) {
+      // eslint-disable-next-line no-console
       console.log("Something mysterious went wrong, bailing");
     }
 
@@ -277,6 +279,7 @@ export class Board {
         // flip a coin and sometimes randomly, pick from the bottom sounds for the same kind of drum.
         // You know, keep it interesting.
         let row = drumPitches.indexOf(note.pitch ?? 0);
+        // eslint-disable-next-line no-console
         console.log(note.pitch, row);
         if (row < numOtherPitches && Math.random() < 0.5) {
           row += numOtherPitches;
