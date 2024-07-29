@@ -120,6 +120,7 @@ const AudioUIView = () => {
                 type="number"
                 min="0.1"
                 max="5"
+                step="0.1"
                 value={isPending ? playbackRateInput.value : playbackRate}
                 onInput={onPlaybackRateInput}
               ></input>
@@ -146,7 +147,7 @@ const AudioUIView = () => {
 
 const AudioDataView = () => {
   const { state, dispatch } = useAppContext();
-
+  const textareaRef = useRef();
   const loadCB = useCallback(
     async (url: string) => {
       try {
@@ -189,6 +190,7 @@ const AudioDataView = () => {
 
   const { audioData } = state;
   const { dataUrl } = audioData?.data || {};
+
   const error = audioData?.error as Error;
   const ret = useMemo(() => {
     return (
@@ -200,6 +202,9 @@ const AudioDataView = () => {
             autoComplete="on"
             title="specify url of audio resource"
             onChange={() => {}}
+            ref={(elm) => {
+              textareaRef.current = elm;
+            }}
           ></textarea>
         </div>
         <div>
@@ -208,9 +213,10 @@ const AudioDataView = () => {
         </div>
         <button
           onClick={() => {
-            loadCB(
-              "https://h-sug1no.github.io/test/audio-view-test/docs/DSSK1_bpm100.mp3"
-            );
+            const url = textareaRef.current?.value;
+            if (url) {
+              loadCB(url);
+            }
           }}
         >
           load
@@ -220,6 +226,7 @@ const AudioDataView = () => {
           {dataUrl && (
             <>
               <audio
+                autoPlay
                 src={dataUrl}
                 controls
                 ref={(elm) => {
