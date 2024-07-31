@@ -5,6 +5,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import "./App.css";
 import { AppContext, useAppContext, useAppContextReducer } from "./AppContext";
 import VAEApp from "./vae/VAEApp";
+import clsx from "clsx";
 
 // Suggested code may be subject to a license. Learn more: ~LicenseLog:1754968550.
 // Suggested code may be subject to a license. Learn more: ~LicenseLog:3284899091.
@@ -148,6 +149,7 @@ const AudioUIView = () => {
 const AudioFileInputView = () => {
   const { /*state,*/ dispatch } = useAppContext();
   const audioFileInputRef = useRef();
+  const [isHover, setIsHover] = useState(false);
 
   const loadFileCB = useCallback(async () => {
     const elm = audioFileInputRef.current;
@@ -217,23 +219,32 @@ const AudioFileInputView = () => {
     });
   }, [dispatch]);
 
+  const tf = useCallback(() => {
+    setIsHover(false);
+  }, []);
   const ret = useMemo(() => {
     return (
       <div className="inputContainer">
         <label className="audioFileInputLabel">
           <input
             type="file"
-            className="audioFileInput"
+            className={clsx("audioFileInput", isHover ? "hover" : "")}
             ref={(elm) => {
               audioFileInputRef.current = elm;
             }}
             onChange={loadFileCB}
+            onDragOver={() => {
+              setIsHover(true);
+            }}
+            onDragLeave={tf}
+            onDrop={tf}
+            onDragEnd={tf}
           ></input>
         </label>
         <button onClick={loadFileCB}>load</button>
       </div>
     );
-  }, [loadFileCB]);
+  }, [isHover, loadFileCB, tf]);
   return ret;
 };
 

@@ -80,5 +80,10 @@ label input.pending {
 .inputContainer .audioFileInput {
   display: block;
   width: 100%;
-  background-color: #cdf;
+  background-color: #ffc;
+}
+
+.inputContainer .audioFileInput.hover {
+  height: 100px;
+  background-color: #cff;
 }
