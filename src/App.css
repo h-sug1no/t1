@@ -58,3 +58,27 @@ label {
 label input.pending {
   opacity: 0.6;
 }
+
+.inputContainer {
+  border: solid gray 1px;
+  border-radius: 5px;
+  padding: 5px;
+  margin: 0.5em;
+}
+
+.inputContainer #audio-resource-url {
+  width: 100%;
+}
+
+.inputContainer .audioFileInputLabel {
+  display: block;
+  box-sizing: border-box;
+  width: calc(100%-5px);
+  background-color: #eeffee;
+}
+
+.inputContainer .audioFileInput {
+  display: block;
+  width: 100%;
+  background-color: #cdf;
+}

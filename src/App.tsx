@@ -145,6 +145,98 @@ const AudioUIView = () => {
   return ret;
 };
 
+const AudioFileInputView = () => {
+  const { /*state,*/ dispatch } = useAppContext();
+  const audioFileInputRef = useRef();
+
+  const loadFileCB = useCallback(async () => {
+    const elm = audioFileInputRef.current;
+    if (!elm) {
+      return;
+    }
+    const { files } = elm;
+    if (!files || !files[0]) {
+      return;
+    }
+    return new Promise((resolve, reject) => {
+      const file = files[0];
+      const url = `local file: ${file.name}: ${file.size} bytes`;
+      try {
+        dispatch({
+          type: "audioData/loading",
+          payload: {
+            url,
+            loading: true,
+            error: undefined,
+          },
+        });
+
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+          try {
+            const data = e.target.result;
+            const blob = new Blob([data], { type: `application/octet-stream` });
+            const dataUrl = URL.createObjectURL(blob);
+            const audioContext = new AudioContext();
+            const audioBuffer = await audioContext.decodeAudioData(data);
+            const newData = {
+              dataUrl,
+              audioBuffer,
+            };
+            dispatch({
+              type: "audioData/set",
+              payload: {
+                url,
+                data: newData,
+                loading: false,
+              },
+            });
+            resolve(0);
+          } catch (err: unknown) {
+            dispatch({
+              type: "audioData/error",
+              payload: {
+                url,
+                error: err,
+              },
+            });
+            reject(-1);
+          }
+        };
+        reader.readAsArrayBuffer(file); // ArrayBufferとして読み込む場合
+      } catch (err: unknown) {
+        dispatch({
+          type: "audioData/error",
+          payload: {
+            url,
+            error: err,
+          },
+        });
+        reject(-2);
+      }
+    });
+  }, [dispatch]);
+
+  const ret = useMemo(() => {
+    return (
+      <div className="inputContainer">
+        <label className="audioFileInputLabel">
+          <input
+            type="file"
+            className="audioFileInput"
+            ref={(elm) => {
+              audioFileInputRef.current = elm;
+            }}
+            onChange={loadFileCB}
+          ></input>
+        </label>
+        <button onClick={loadFileCB}>load</button>
+      </div>
+    );
+  }, [loadFileCB]);
+  return ret;
+};
+
 const AudioDataView = () => {
   const { state, dispatch } = useAppContext();
   const textareaRef = useRef();
@@ -156,6 +248,7 @@ const AudioDataView = () => {
           payload: {
             url,
             loading: true,
+            error: undefined,
           },
         });
         const res = await fetch(url);
@@ -197,30 +290,33 @@ const AudioDataView = () => {
       <div>
         {audioData?.url}
         <div>
-          <textarea
-            id="audio-resource-url"
-            autoComplete="on"
-            title="specify url of audio resource"
-            onChange={() => {}}
-            ref={(elm) => {
-              textareaRef.current = elm;
-            }}
-          ></textarea>
-        </div>
-        <div>
           {audioData?.loading && "Loading..."}
           {error && error?.toString()}
         </div>
-        <button
-          onClick={() => {
-            const url = textareaRef.current?.value;
-            if (url) {
-              loadCB(url);
-            }
-          }}
-        >
-          load
-        </button>
+        <div className="inputContainer">
+          <div>
+            <textarea
+              id="audio-resource-url"
+              autoComplete="on"
+              title="specify url of audio resource"
+              onChange={() => {}}
+              ref={(elm) => {
+                textareaRef.current = elm;
+              }}
+            ></textarea>
+          </div>
+          <button
+            onClick={() => {
+              const url = textareaRef.current?.value;
+              if (url) {
+                loadCB(url);
+              }
+            }}
+          >
+            load
+          </button>
+        </div>
+        <AudioFileInputView />
         <AudioUIView />
         <div>
           {dataUrl && (
@@ -262,7 +358,7 @@ function NavigationMenu() {
   ].map(({ pathname, label }) => {
     return window.location.pathname === pathname ? null : (
       <div key={`${pathname}_${label}`}>
-        <a href={pathname}>{label ?? pathname}</a>
+        <a href={pathname}>{label ?? pathname} →</a>
       </div>
     );
   });
