@@ -1,4 +1,6 @@
 import { MusicRNN, MusicVAE } from "@magenta/music/esm";
+import type { SynthOptions } from "tone";
+import type { RecursivePartial } from "tone/build/esm/core/util/Interface";
 import { Board, type Cell, NoiseyMakey } from "./helpers";
 
 let isMouseDown = false;
@@ -218,6 +220,14 @@ export function loadDemo(which: number) {
 /***********************************
  * UI actions
  ***********************************/
+export function updateSynth(option: RecursivePartial<SynthOptions>) {
+  const synth = noiseyMakey?.synth;
+  if (synth) {
+    synth.dispose();
+    noiseyMakey.synth = noiseyMakey._makeASynth();
+    noiseyMakey.synth.set(option);
+  }
+}
 
 export function playOrPause() {
   const container = document.getElementById("container");

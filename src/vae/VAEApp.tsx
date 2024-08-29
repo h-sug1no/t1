@@ -14,6 +14,7 @@ import {
 } from "./script";
 
 import "./styles.css";
+import { SynthPresets } from "./SynthPresets";
 
 export function VAEApp() {
   return (
@@ -23,7 +24,7 @@ export function VAEApp() {
       }}
     >
       <h1>tenori-off</h1>
-
+      <SynthPresets />
       <button
         type="button"
         className="controls glitcheroni synth"
