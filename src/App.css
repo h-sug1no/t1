@@ -47,6 +47,9 @@
 .audio-view {
   border: solid gray 1px;
   border-radius: 5px;
+  padding: 5px;
+  box-sizing: border-box;
+  margin-bottom: 5px;
 }
 
 label {
