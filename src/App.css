@@ -64,6 +64,7 @@ label input.pending {
   border-radius: 5px;
   padding: 5px;
   margin: 0.5em;
+  background-color: antiquewhite;
 }
 
 .inputContainer #audio-resource-url {

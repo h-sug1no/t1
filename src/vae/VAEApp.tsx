@@ -25,6 +25,7 @@ export function VAEApp() {
       <h1>tenori-off</h1>
 
       <button
+        type="button"
         className="controls glitcheroni synth"
         id="btnSynth"
         onClick={() => {
@@ -35,6 +36,7 @@ export function VAEApp() {
         Synth
       </button>
       <button
+        type="button"
         className="controls glitcheroni"
         id="btnDrums"
         onClick={() => {
@@ -45,6 +47,7 @@ export function VAEApp() {
         Drums
       </button>
       <button
+        type="button"
         className="controls glitcheroni not-loaded"
         onClick={() => {
           autoDrums();
@@ -56,9 +59,12 @@ export function VAEApp() {
       </button>
       <br />
       <label id="inputLabel" className="controls glitcheroni">
-        Step<span></span>ms
+        Step
+        <span />
+        ms
       </label>
       <button
+        type="button"
         className="controls glitcheroni"
         id="btnPlay"
         onClick={() => {
@@ -68,6 +74,7 @@ export function VAEApp() {
         Play!
       </button>
       <button
+        type="button"
         className="controls glitcheroni"
         onClick={() => {
           reset(true);
@@ -76,6 +83,7 @@ export function VAEApp() {
         Reset
       </button>
       <button
+        type="button"
         className="controls glitcheroni"
         onClick={() => {
           showHelp();
@@ -115,6 +123,7 @@ export function VAEApp() {
         </p>
         <p>Ok, go make fun shit now and tell me about it!</p>
         <button
+          type="button"
           className="controls glitcheroni"
           onClick={() => {
             showHelp();
@@ -137,12 +146,12 @@ export function VAEApp() {
           Use the: <br />
           <label className="radio">
             <input name="model" type="radio" id="radioRnn" />
-            <span className="control-indicator glitcheroni"></span>
+            <span className="control-indicator glitcheroni" />
             RNN
           </label>
           <label className="radio">
             <input name="model" type="radio" id="radioVae" checked />
-            <span className="control-indicator glitcheroni"></span>
+            <span className="control-indicator glitcheroni" />
             VAE
           </label>
           <br />
@@ -152,12 +161,12 @@ export function VAEApp() {
           <br />
           <label className="radio">
             <input name="drum" type="radio" id="radioForceDrumYes" checked />
-            <span className="control-indicator glitcheroni"></span>
+            <span className="control-indicator glitcheroni" />
             Yes
           </label>
           <label className="radio">
             <input name="drum" type="radio" id="radioForceDrumNo" />
-            <span className="control-indicator glitcheroni"></span>
+            <span className="control-indicator glitcheroni" />
             No
           </label>
           <br />
@@ -175,6 +184,7 @@ export function VAEApp() {
         </div>
         <br />
         <button
+          type="button"
           className="controls glitcheroni"
           onClick={() => {
             showSettings();
@@ -184,12 +194,13 @@ export function VAEApp() {
         </button>
       </div>
 
-      <div className="container" id="container"></div>
+      <div className="container" id="container" />
 
       <br />
 
       <h3 className="samples">samples</h3>
       <button
+        type="button"
         className="controls glitcheroni"
         onClick={() => {
           loadDemo(1);
@@ -198,6 +209,7 @@ export function VAEApp() {
         1
       </button>
       <button
+        type="button"
         className="controls glitcheroni"
         onClick={() => {
           loadDemo(2);
@@ -206,6 +218,7 @@ export function VAEApp() {
         2
       </button>
       <button
+        type="button"
         className="controls glitcheroni"
         onClick={() => {
           loadDemo(3);
@@ -214,6 +227,7 @@ export function VAEApp() {
         3
       </button>
       <button
+        type="button"
         className="controls glitcheroni"
         onClick={() => {
           loadDemo(4);
@@ -222,6 +236,7 @@ export function VAEApp() {
         4
       </button>
       <button
+        type="button"
         className="controls glitcheroni"
         onClick={() => {
           loadDemo(5);
@@ -241,7 +256,7 @@ export function VAEApp() {
           top: "4px",
           right: "4px",
         }}
-      ></div>
+      />
       {/*<script src="https://button.glitch.me/button.js"></script>*/}
 
       <footer>

@@ -1,5 +1,5 @@
 import { MusicRNN, MusicVAE } from "@magenta/music/esm";
-import { Board, NoiseyMakey, Cell } from "./helpers";
+import { Board, type Cell, NoiseyMakey } from "./helpers";
 
 let isMouseDown = false;
 let isAnimating = false;
@@ -38,7 +38,7 @@ function init() {
   if (!tElm?.querySelector("span input")) {
     tElm?.insertAdjacentHTML(
       "afterbegin",
-      '<input placeholder="100" type = "number" value = "100" id = "input" /> '
+      '<input placeholder="100" type = "number" value = "100" id = "input" /> ',
     );
   }
 
@@ -51,7 +51,7 @@ function init() {
       const elm = document.getElementById("input") as HTMLInputElement;
       if (parsed[1] && elm) {
         elm.value = parsed[1];
-        animationSpeed = parseInt(parsed[1]);
+        animationSpeed = Number.parseInt(parsed[1]);
       }
       board.draw();
     } catch (err) {
@@ -66,9 +66,10 @@ function init() {
       isMouseDown = true;
       clickCell(event);
     });
-  document
-    .getElementById("container")
-    ?.addEventListener("mouseup", () => (isMouseDown = false));
+  document.getElementById("container")?.addEventListener("mouseup", () => {
+    isMouseDown = false;
+    return isMouseDown;
+  });
   document
     .getElementById("container")
     ?.addEventListener("mouseover", clickCell);
@@ -77,7 +78,7 @@ function init() {
     ?.addEventListener("change", (event: Event) => {
       if (event.target instanceof HTMLInputElement) {
         const target = event.target;
-        animationSpeed = parseInt(target.value);
+        animationSpeed = Number.parseInt(target.value);
         updateLocation();
       }
     });
@@ -144,8 +145,8 @@ function clickCell(event: Event) {
     return;
   }
 
-  const x = parseInt(button.dataset.row ?? "0");
-  const y = parseInt(button.dataset.col ?? "0");
+  const x = Number.parseInt(button.dataset.row ?? "0");
+  const y = Number.parseInt(button.dataset.col ?? "0");
   board.toggleCell(x, y, noiseyMakey.getSound(), button);
 
   updateLocation();
@@ -186,27 +187,27 @@ export function loadDemo(which: number) {
   switch (which) {
     case 1:
       board.data = decode(
-        "0000000000000000000000000000000022222000000000000000000000000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000200020002000200000000000000000000000000000000000000000101000000000000001010101010010000010101010"
+        "0000000000000000000000000000000022222000000000000000000000000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000200020002000200000000000000000000000000000000000000000101000000000000001010101010010000010101010",
       );
       break;
     case 2:
       board.data = decode(
-        "0000000000000000000000000000000000000000000000000000011001100000000001100110000000020000000020000002000000002000000020000002000000000222222000000000000000000000001000010000000000100000001101100011100100121210001010010001210000101001000010000000000000000000"
+        "0000000000000000000000000000000000000000000000000000011001100000000001100110000000020000000020000002000000002000000020000002000000000222222000000000000000000000001000010000000000100000001101100011100100121210001010010001210000101001000010000000000000000000",
       );
       break;
     case 3:
       board.data = decode(
-        "2222220001001000000000000000000000222222020220220000000000000000000000110000000000001000000000000001000000010000000000000000000000000000000010000010000000000000010000000000000001000000000010000100000000000000000000000000100000000000000000000000010101010000"
+        "2222220001001000000000000000000000222222020220220000000000000000000000110000000000001000000000000001000000010000000000000000000000000000000010000010000000000000010000000000000001000000000010000100000000000000000000000000100000000000000000000000010101010000",
       );
       break;
     case 4:
       board.data = decode(
-        "2202020202202020000020000020200000202002200220220002002000020001200000220021020000010000000000000000000100000000101010101010101000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000&100"
+        "2202020202202020000020000020200000202002200220220002002000020001200000220021020000010000000000000000000100000000101010101010101000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000&100",
       );
       break;
     case 5:
       board.data = decode(
-        "0000000000000000000111100000000000000000000000000011111000000000000010000000000000010000010000000010000001000000000000000100000000000000100000000000001100000000000000000010010000000000001001000000000000100100000000000000010000000000000010000000000000000000"
+        "0000000000000000000111100000000000000000000000000011111000000000000010000000000000010000010000000010000001000000000000000100000000000000100000000000001100000000000000000010010000000000001001000000000000100100000000000000010000000000000010000000000000000000",
       );
       break;
   }
@@ -329,7 +330,7 @@ function loadModel() {
 
   const url = `https://storage.googleapis.com/magentadata/js/checkpoints/${root}/${name}`;
 
-  if (!model || model_checkpointURL != url) {
+  if (!model || model_checkpointURL !== url) {
     model = useRNN ? new MusicRNN(url) : new MusicVAE(url);
     model_checkpointURL = url;
   }
@@ -350,8 +351,8 @@ function loadModel() {
  ***********************************/
 function updateLocation() {
   // New board state, so update the URL.
-  const speed = parseInt(
-    (document.getElementById("input") as HTMLInputElement).value
+  const speed = Number.parseInt(
+    (document.getElementById("input") as HTMLInputElement).value,
   );
   const newHash = `#${encode(board.data)}&${speed}`;
   if (newHash !== window.location.hash) {
@@ -377,8 +378,8 @@ function decode(bits: string): Cell[][] {
     for (let j = 0; j < 16; j++) {
       arr[i][j] = {};
       const c = bits.charAt(i * 16 + j);
-      if (c != "0") {
-        arr[i][j].on = parseInt(c);
+      if (c !== "0") {
+        arr[i][j].on = Number.parseInt(c);
       }
     }
   }

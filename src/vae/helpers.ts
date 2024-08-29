@@ -1,4 +1,4 @@
-import { INoteSequence, Player } from "@magenta/music/esm/";
+import { type INoteSequence, Player } from "@magenta/music/esm/";
 import * as Tone from "tone";
 
 export type Cell = {
@@ -212,7 +212,7 @@ export class Board {
 
     uiButton.setAttribute(
       "aria-label",
-      sound === 1 ? "cell, synth" : "cell, drums"
+      sound === 1 ? "cell, synth" : "cell, drums",
     );
     this.draw();
   }
@@ -234,7 +234,7 @@ export class Board {
           sequence.notes.push({
             pitch: drumPitches[i],
             quantizedStartStep: j,
-            isDrum: forceToDrum ? true : false,
+            isDrum: forceToDrum,
             quantizedEndStep: j + 1,
           });
         }
@@ -429,7 +429,7 @@ export class Board {
       // Math. We basically want to draw a donut around the ripple center.
       // A distance is sqrt[(x1-x2)^2 + (y1-y2)^2]
       const distanceFromRippleCenter = Math.sqrt(
-        (i - ripple.x) * (i - ripple.x) + (j - ripple.y) * (j - ripple.y)
+        (i - ripple.x) * (i - ripple.x) + (j - ripple.y) * (j - ripple.y),
       );
 
       // If you're in this magical donut with magical numbers I crafted

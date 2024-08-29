@@ -1,0 +1,25 @@
+{
+  "$schema": "https://biomejs.dev/schemas/1.8.3/schema.json",
+  "organizeImports": {
+    "enabled": true
+  },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "recommended": true
+    }
+  },
+  "formatter": {
+    "indentStyle": "space"
+  },
+  "files": {
+    "ignore": [
+      "vite.config.ts",
+      "node_modules/*",
+      ".vscode/*",
+      "package.json",
+      "package-lock/json",
+      "tsconfig*"
+    ]
+  }
+}

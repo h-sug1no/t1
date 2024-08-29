@@ -3,9 +3,9 @@
 import React, { useRef } from "react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import "./App.css";
+import clsx from "clsx";
 import { AppContext, useAppContext, useAppContextReducer } from "./AppContext";
 import VAEApp from "./vae/VAEApp";
-import clsx from "clsx";
 
 // Suggested code may be subject to a license. Learn more: ~LicenseLog:1754968550.
 // Suggested code may be subject to a license. Learn more: ~LicenseLog:3284899091.
@@ -16,19 +16,26 @@ const CountView = () => {
   const countView = useMemo(
     () => (
       <div className="card">
-        <button onClick={() => dispatch({ type: "count/inc" })}>+</button>
-        <button onClick={() => dispatch({ type: "count/dec" })}>-</button>
+        <button type="button" onClick={() => dispatch({ type: "count/inc" })}>
+          +
+        </button>
+        <button type="button" onClick={() => dispatch({ type: "count/dec" })}>
+          -
+        </button>
         <label>count is {state.count}</label>
-
         <p>
           Edit <code>src/App.tsx</code> and save to test HMR
         </p>
       </div>
     ),
-    [dispatch, state.count]
+    [dispatch, state.count],
   );
 
   return countView;
+};
+
+const T = () => {
+  return <span />;
 };
 
 const AudioUIView = () => {
@@ -71,7 +78,7 @@ const AudioUIView = () => {
         current.tid = 0;
       }, 1000);
     },
-    [audioElm]
+    [audioElm],
   );
 
   const { current: playbackRateInput } = playbackRateInputRef;
@@ -93,6 +100,7 @@ const AudioUIView = () => {
           {currentTime.toFixed(2)} /{duration.toFixed(2)}:{playbackRate}
           <div className="audio-view-controls">
             <button
+              type="button"
               onClick={() => {
                 if (paused) {
                   audioElm.play();
@@ -124,7 +132,7 @@ const AudioUIView = () => {
                 step="0.1"
                 value={isPending ? playbackRateInput.value : playbackRate}
                 onInput={onPlaybackRateInput}
-              ></input>
+              />
             </label>
           </div>
         </div>
@@ -139,7 +147,7 @@ const AudioUIView = () => {
       paused,
       playbackRate,
       playbackRateInput.value,
-    ]
+    ],
   );
 
   // test
@@ -177,7 +185,7 @@ const AudioFileInputView = () => {
         reader.onload = async (e) => {
           try {
             const data = e.target.result;
-            const blob = new Blob([data], { type: `application/octet-stream` });
+            const blob = new Blob([data], { type: "application/octet-stream" });
             const dataUrl = URL.createObjectURL(blob);
             const audioContext = new AudioContext();
             const audioBuffer = await audioContext.decodeAudioData(data);
@@ -239,9 +247,11 @@ const AudioFileInputView = () => {
             onDragLeave={tf}
             onDrop={tf}
             onDragEnd={tf}
-          ></input>
+          />
         </label>
-        <button onClick={loadFileCB}>load</button>
+        <button type="button" onClick={loadFileCB}>
+          load
+        </button>
       </div>
     );
   }, [isHover, loadFileCB, tf]);
@@ -264,7 +274,7 @@ const AudioDataView = () => {
         });
         const res = await fetch(url);
         const data = await res.arrayBuffer();
-        const blob = new Blob([data], { type: `application/octet-stream` });
+        const blob = new Blob([data], { type: "application/octet-stream" });
         const dataUrl = URL.createObjectURL(blob);
         const audioContext = new AudioContext();
         const audioBuffer = await audioContext.decodeAudioData(data);
@@ -289,7 +299,7 @@ const AudioDataView = () => {
         });
       }
     },
-    [dispatch]
+    [dispatch],
   );
 
   const { audioData } = state;
@@ -302,7 +312,7 @@ const AudioDataView = () => {
         {audioData?.url}
         <div>
           {audioData?.loading && "Loading..."}
-          {error && error?.toString()}
+          {error?.toString()}
         </div>
         <div className="inputContainer">
           <div>
@@ -314,9 +324,10 @@ const AudioDataView = () => {
               ref={(elm) => {
                 textareaRef.current = elm;
               }}
-            ></textarea>
+            />
           </div>
           <button
+            type="button"
             onClick={() => {
               const url = textareaRef.current?.value;
               if (url) {
@@ -342,9 +353,12 @@ const AudioDataView = () => {
                     payload: { audioElm: elm },
                   });
                 }}
-              />
+              >
+                <track kind="captions" />
+              </audio>
               <div>
                 <button
+                  type="button"
                   onClick={() => {
                     URL.revokeObjectURL(dataUrl);
                     dispatch({ type: "audioData/reset" });

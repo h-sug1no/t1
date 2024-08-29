@@ -48,7 +48,7 @@ function _parseActionType(actionType: string): { type: string; id: string } {
 function _countReducer(
   state: IAppContextState,
   _action: IAppContextStateAction,
-  id: string
+  id: string,
 ): IAppContextState {
   switch (id) {
     case "inc":
@@ -63,7 +63,7 @@ function _countReducer(
 function _audioDataReducer(
   state: IAppContextState,
   action: IAppContextStateAction,
-  id: string
+  id: string,
 ): IAppContextState {
   const payload = (action as IAudioDataAction).payload;
   switch (id) {
@@ -94,15 +94,15 @@ const reducers: Record<
   (
     state: IAppContextState,
     action: IAppContextStateAction,
-    id: string
+    id: string,
   ) => IAppContextState
 > = {};
-reducers["count"] = _countReducer;
-reducers["audioData"] = _audioDataReducer;
+reducers.count = _countReducer;
+reducers.audioData = _audioDataReducer;
 
 function reducer(
   state: IAppContextState,
-  action: IAppContextStateAction
+  action: IAppContextStateAction,
 ): IAppContextState {
   const { type, id } = _parseActionType(action.type);
 
