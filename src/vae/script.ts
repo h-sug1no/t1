@@ -221,12 +221,7 @@ export function loadDemo(which: number) {
  * UI actions
  ***********************************/
 export function updateSynth(option: RecursivePartial<SynthOptions>) {
-  const synth = noiseyMakey?.synth;
-  if (synth) {
-    synth.dispose();
-    noiseyMakey.synth = noiseyMakey._makeASynth();
-    noiseyMakey.synth.set(option);
-  }
+  noiseyMakey.updateSynth(option);
 }
 
 export function playOrPause() {

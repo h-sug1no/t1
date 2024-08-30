@@ -1,5 +1,7 @@
 import { type INoteSequence, Player } from "@magenta/music/esm/";
 import * as Tone from "tone";
+import type { SynthOptions } from "tone";
+import type { RecursivePartial } from "tone/build/esm/core/util/Interface";
 
 export type Cell = {
   on?: number;
@@ -28,6 +30,7 @@ type Sequence = {
  * Makes synth or drum noises
  ***********************************/
 export class NoiseyMakey {
+  gain: Tone.Gain;
   synth: Tone.PolySynth;
   wham: Tone.PolySynth;
   isSynth: boolean;
@@ -35,7 +38,8 @@ export class NoiseyMakey {
   magentaPlayer: Player;
   magentaPitches: number[];
   constructor() {
-    this.synth = this._makeASynth();
+    this.gain = new Tone.Gain(0.7).toDestination();
+    this.synth = this.updateSynth({});
     this.wham = this._makeAWham();
 
     this.isSynth = true;
@@ -121,10 +125,24 @@ export class NoiseyMakey {
     }
   }
 
+  updateSynth(option: RecursivePartial<SynthOptions>) {
+    let { synth } = this;
+    if (synth) {
+      synth.disconnect(this.gain);
+      synth.dispose();
+    }
+    synth = this._makeASynth();
+    synth.set(option);
+    synth.connect(this.gain);
+    this.synth = synth;
+
+    return this.synth;
+  }
+
   _makeASynth(): Tone.PolySynth {
     // Set up tone.
     // FIXME: 16 voices
-    const synth = new Tone.PolySynth(Tone.Synth).toDestination();
+    const synth = new Tone.PolySynth(Tone.Synth); //.toDestination();
     return synth;
   }
 
