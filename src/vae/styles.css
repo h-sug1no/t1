@@ -212,6 +212,10 @@ button.pixel.ripple.drums {
   width: 5em;
 }
 
+.synthPresetsContainer {
+  margin: 10px;
+}
+
 @media (max-width: 500px) {
   h1 {
     font-size: 40px;

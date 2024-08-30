@@ -122,17 +122,20 @@ export const SynthPresets = () => {
   });
   const ret = (
     <div className="synthPresetsContainer">
-      <select
-        className="synthPresetsList"
-        defaultValue={"default"}
-        onChange={(e) => {
-          const key = e.target.value;
-          const preset = synthPresets[key] as RecursivePartial<SynthOptions>;
-          updateSynth(preset);
-        }}
-      >
-        {options}
-      </select>
+      <label className="glitcheroni">
+        PolySynth Preset&nbsp;
+        <select
+          className="synthPresetsList"
+          defaultValue={"default"}
+          onChange={(e) => {
+            const key = e.target.value;
+            const preset = synthPresets[key] as RecursivePartial<SynthOptions>;
+            updateSynth(preset);
+          }}
+        >
+          {options}
+        </select>
+      </label>
     </div>
   );
   return ret;
