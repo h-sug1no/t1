@@ -4,7 +4,13 @@ import React, { useRef } from "react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import "./App.css";
 import clsx from "clsx";
-import { AppContext, useAppContext, useAppContextReducer } from "./AppContext";
+import {
+  AppContext,
+  createMergeAction,
+  createUpdateAction,
+  useAppContext,
+  useAppContextReducer,
+} from "./AppContext2";
 import VAEApp from "./vae/VAEApp";
 
 // Suggested code may be subject to a license. Learn more: ~LicenseLog:1754968550.
@@ -16,10 +22,16 @@ const CountView = () => {
   const countView = useMemo(
     () => (
       <div className="card">
-        <button type="button" onClick={() => dispatch({ type: "count/inc" })}>
+        <button
+          type="button"
+          onClick={() => dispatch(createUpdateAction("count", state.count + 1))}
+        >
           +
         </button>
-        <button type="button" onClick={() => dispatch({ type: "count/dec" })}>
+        <button
+          type="button"
+          onClick={() => dispatch(createUpdateAction("count", state.count - 1))}
+        >
           -
         </button>
         <label>count is {state.count}</label>
@@ -172,14 +184,12 @@ const AudioFileInputView = () => {
       const file = files[0];
       const url = `local file: ${file.name}: ${file.size} bytes`;
       try {
-        dispatch({
-          type: "audioData/loading",
-          payload: {
+        dispatch(
+          createUpdateAction("audioData", {
             url,
             loading: true,
-            error: undefined,
-          },
-        });
+          }),
+        );
 
         const reader = new FileReader();
         reader.onload = async (e) => {
@@ -193,35 +203,32 @@ const AudioFileInputView = () => {
               dataUrl,
               audioBuffer,
             };
-            dispatch({
-              type: "audioData/set",
-              payload: {
+            dispatch(
+              createUpdateAction("audioData", {
                 url,
                 data: newData,
                 loading: false,
-              },
-            });
+              }),
+            );
             resolve(0);
           } catch (err: unknown) {
-            dispatch({
-              type: "audioData/error",
-              payload: {
+            dispatch(
+              createUpdateAction("audioData", {
                 url,
                 error: err,
-              },
-            });
+              }),
+            );
             reject(-1);
           }
         };
         reader.readAsArrayBuffer(file); // ArrayBufferとして読み込む場合
       } catch (err: unknown) {
-        dispatch({
-          type: "audioData/error",
-          payload: {
+        dispatch(
+          createUpdateAction("audioData", {
             url,
             error: err,
-          },
-        });
+          }),
+        );
         reject(-2);
       }
     });
@@ -264,39 +271,36 @@ const AudioDataView = () => {
   const loadCB = useCallback(
     async (url: string) => {
       try {
-        dispatch({
-          type: "audioData/loading",
-          payload: {
+        dispatch(
+          createUpdateAction("audioData", {
             url,
             loading: true,
             error: undefined,
-          },
-        });
+          }),
+        );
         const res = await fetch(url);
         const data = await res.arrayBuffer();
         const blob = new Blob([data], { type: "application/octet-stream" });
         const dataUrl = URL.createObjectURL(blob);
         const audioContext = new AudioContext();
         const audioBuffer = await audioContext.decodeAudioData(data);
-        dispatch({
-          type: "audioData/set",
-          payload: {
+        dispatch(
+          createUpdateAction("audioData", {
             url,
             data: {
               dataUrl,
               audioBuffer,
             },
             loading: false,
-          },
-        });
+          }),
+        );
       } catch (err: unknown) {
-        dispatch({
-          type: "audioData/error",
-          payload: {
+        dispatch(
+          createUpdateAction("audioData", {
             url,
             error: err,
-          },
-        });
+          }),
+        );
       }
     },
     [dispatch],
@@ -348,10 +352,11 @@ const AudioDataView = () => {
                 src={dataUrl}
                 controls
                 ref={(elm) => {
-                  dispatch({
-                    type: "audioData/set",
-                    payload: { audioElm: elm },
-                  });
+                  dispatch(
+                    createMergeAction("audioData", {
+                      audioElm: elm,
+                    }),
+                  );
                 }}
               >
                 <track kind="captions" />
@@ -361,7 +366,12 @@ const AudioDataView = () => {
                   type="button"
                   onClick={() => {
                     URL.revokeObjectURL(dataUrl);
-                    dispatch({ type: "audioData/reset" });
+                    dispatch(
+                      createUpdateAction("audioData", {
+                        data: {},
+                        audioElm: null,
+                      }),
+                    );
                   }}
                 >
                   Reset

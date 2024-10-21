@@ -1,0 +1,75 @@
+openapi: '3.0.3'
+info:
+  title: some test api.
+  version: '1.0'
+servers:
+  - url: https://api.server.test/v1
+paths:
+  /test:
+    get:
+      parameters:
+        - in: query
+          name: filter
+          description: result filter expression string in re-gex forma.
+          schema:
+            type: string
+        - in: query 
+          name: page
+          description: page no to get. (1..N)
+          schema:
+            type: integer
+            default: 1
+          required: false
+      responses:
+        '200':
+          description: OK
+
+  /items:
+    get:
+      summary: Retrieve paginated items
+      parameters:
+        - $ref: '#/components/parameters/PageQueryParam'
+      responses:
+        '200': 
+          description: list of Items response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ItemList'
+          
+components:
+  schemas:
+    Item:
+      description: item object.
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        type:
+          description: type of this item.
+          type: string
+          enum: [bb, handle, crank, sprocket]
+        description:
+          description: string description of this item.
+          type: string
+          nullable: true
+
+    ItemList:
+      description: A list of items.
+      type: array
+      items:
+        $ref: '#/components/schemas/Item'
+        
+  parameters:
+    PageQueryParam:
+      name: page
+      in: query
+      description: The page number. If not specified, all pages will be returned.
+      required: false
+      schema:
+        type: integer
+        minimum: 0
+        default: 0
+        nullable: true                      
