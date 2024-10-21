@@ -11,7 +11,6 @@ export interface IAudioData {
   data?: IAudioBufferData;
   error?: unknown;
   loading?: boolean;
-  audioElm?: HTMLAudioElement | null;
 }
 
 export interface IAppContextState {
@@ -29,7 +28,6 @@ const _initialState: IAppContextState = {
     },
     error: undefined,
     loading: false,
-    audioElm: null,
   },
 };
 
@@ -40,8 +38,7 @@ type IStateTypes =
   | number
   | IAudioBufferData
   | IAudioData
-  | boolean
-  | HTMLAudioElement;
+  | boolean;
 
 //////////////////////////////////////////////////////////
 

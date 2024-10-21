@@ -50,11 +50,10 @@ const T = () => {
   return <span />;
 };
 
-const AudioUIView = () => {
+const AudioUIView = ({ audioElm }: { audioElm: HTMLMediaElement | null }) => {
   const [, setRepaintCount] = useState(0);
   const { state } = useAppContext();
   const { audioData = {} } = state;
-  const { audioElm } = audioData;
 
   useEffect(() => {
     let requestId: number;
@@ -266,6 +265,8 @@ const AudioFileInputView = () => {
 };
 
 const AudioDataView = () => {
+  const [audioElm, setAudioElm] = useState<HTMLMediaElement | null>(null);
+
   const { state, dispatch } = useAppContext();
   const textareaRef = useRef();
   const loadCB = useCallback(
@@ -343,7 +344,7 @@ const AudioDataView = () => {
           </button>
         </div>
         <AudioFileInputView />
-        <AudioUIView />
+        <AudioUIView audioElm={audioElm} />
         <div>
           {dataUrl && (
             <>
@@ -352,11 +353,7 @@ const AudioDataView = () => {
                 src={dataUrl}
                 controls
                 ref={(elm) => {
-                  dispatch(
-                    createMergeAction("audioData", {
-                      audioElm: elm,
-                    }),
-                  );
+                  setAudioElm(elm);
                 }}
               >
                 <track kind="captions" />
@@ -369,7 +366,6 @@ const AudioDataView = () => {
                     dispatch(
                       createUpdateAction("audioData", {
                         data: {},
-                        audioElm: null,
                       }),
                     );
                   }}
@@ -382,7 +378,15 @@ const AudioDataView = () => {
         </div>
       </div>
     );
-  }, [audioData?.loading, audioData?.url, dataUrl, dispatch, error, loadCB]);
+  }, [
+    audioData?.loading,
+    audioData?.url,
+    dataUrl,
+    dispatch,
+    error,
+    loadCB,
+    audioElm,
+  ]);
   return ret;
 };
 
