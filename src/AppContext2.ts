@@ -90,8 +90,7 @@ const getNestedTarget = <T>(
   const keyArray = keys.slice(0, -1);
 
   for (const key of keyArray) {
-    // uncomment to enable deep clone
-    // target[key] = { ...target[key] };
+    target[key] = { ...target[key] };
     target = target[key];
   }
 
