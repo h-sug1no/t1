@@ -18,7 +18,8 @@ import VAEApp from "./vae/VAEApp";
 
 let nRender = 0;
 const CountView2 = ({ count }: { count: number }) => {
-  return `${nRender++}: ${count}`;
+  console.log(nRender++);
+  return `${count}`;
 };
 const CountView = () => {
   const { state, dispatch } = useAppContext();
