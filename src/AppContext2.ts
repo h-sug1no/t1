@@ -18,7 +18,7 @@ export interface IAppContextState {
   audioData: IAudioData;
 }
 
-const _initialState: IAppContextState = {
+const _initialState0: IAppContextState = {
   count: 0,
   audioData: {
     url: undefined,
@@ -43,6 +43,7 @@ type IStateTypes =
 //////////////////////////////////////////////////////////
 
 enum AppContextActionType {
+  RESET = "appContext/RESET",
   UPDATE = "appContext/UPDATE",
   MERGE = "appContext/MERGE",
   DELETE = "appContext/DELETE",
@@ -123,27 +124,49 @@ const deleteNestedState = <T>(obj: T, path: string): T => {
 };
 
 const appReducer = (
-  state: IAppContextState,
+  state: IAppContextState | undefined,
   action: IAppStateAction,
 ): IAppContextState => {
-  switch (action.type) {
-    case AppContextActionType.UPDATE:
-      return setNestedState(state, action.path, action.value);
+  let ret = state as IAppContextState;
+  if (!state) {
+    if (action.type === AppContextActionType.RESET) {
+      ret = { ...(action.value as IAppContextState) };
+    } else {
+      throw Error("Bad action.type");
+    }
+  } else {
+    switch (action.type) {
+      case AppContextActionType.UPDATE:
+        if (!action.path) {
+          ret = { ...(action.value as IAppContextState) };
+        } else {
+          ret = setNestedState(state, action.path, action.value);
+        }
+        break;
 
-    case AppContextActionType.MERGE:
-      return mergeNestedState(
-        state,
-        action.path,
-        action.value as Record<string, unknown>,
-      );
-
-    case AppContextActionType.DELETE:
-      return deleteNestedState(state, action.path);
-
-    default:
-      return state;
+      case AppContextActionType.MERGE:
+        ret = mergeNestedState(
+          state,
+          action.path,
+          action.value as Record<string, unknown>,
+        );
+        break;
+      case AppContextActionType.DELETE:
+        ret = deleteNestedState(state, action.path);
+        break;
+      default:
+        break;
+    }
   }
+  console.log("appReducer", state, action, ret);
+  return ret;
 };
+
+const _initialState = appReducer(undefined, {
+  type: AppContextActionType.RESET,
+  path: "",
+  value: _initialState0,
+});
 
 export function useAppContextReducer() {
   return useReducer(appReducer, _initialState);
