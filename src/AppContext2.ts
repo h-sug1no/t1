@@ -127,23 +127,20 @@ const appReducer = (
   state: IAppContextState | undefined,
   action: IAppStateAction,
 ): IAppContextState => {
-  let ret = state as IAppContextState;
-  if (!state) {
-    if (action.type === AppContextActionType.RESET) {
-      ret = { ...(action.value as IAppContextState) };
-    } else {
-      throw Error("Bad action.type");
-    }
-  } else {
+  let ret: IAppContextState = state as IAppContextState;
+  if (action.type === AppContextActionType.RESET) {
+    ret = { ...(action.value as IAppContextState) };
+  } else if (!action.path) {
+    throw new Error("empty action.path, use RESET action");
+  } else if (!state) {
+    throw new Error("empty state, Bad action.type or use RESET action");
+  }
+
+  if (state) {
     switch (action.type) {
       case AppContextActionType.UPDATE:
-        if (!action.path) {
-          ret = { ...(action.value as IAppContextState) };
-        } else {
-          ret = setNestedState(state, action.path, action.value);
-        }
+        ret = setNestedState(state, action.path, action.value);
         break;
-
       case AppContextActionType.MERGE:
         ret = mergeNestedState(
           state,
@@ -158,6 +155,7 @@ const appReducer = (
         break;
     }
   }
+
   console.log("appReducer", state, action, ret);
   return ret;
 };
