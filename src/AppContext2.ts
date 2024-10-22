@@ -98,31 +98,6 @@ const getNestedTarget = <T>(
   return { newObj: temp, target, lastKey: keys[keys.length - 1] };
 };
 
-const setNestedState = <T>(obj: T, path: string, value: unknown): T => {
-  const { newObj, target, lastKey } = getNestedTarget(obj, path);
-  target[lastKey] = value;
-  return newObj;
-};
-
-const mergeNestedState = <T>(
-  obj: T,
-  path: string,
-  value: Record<string, unknown>,
-): T => {
-  const { newObj, target, lastKey } = getNestedTarget(obj, path);
-  target[lastKey] = {
-    ...target[lastKey],
-    ...value,
-  };
-  return newObj;
-};
-
-const deleteNestedState = <T>(obj: T, path: string): T => {
-  const { newObj, target, lastKey } = getNestedTarget(obj, path);
-  delete target[lastKey];
-  return newObj;
-};
-
 const appReducer = (
   state: IAppContextState | undefined,
   action: IAppStateAction,
@@ -137,19 +112,23 @@ const appReducer = (
   }
 
   if (state) {
+    const { newObj, target, lastKey } = getNestedTarget(state, action.path);
     switch (action.type) {
       case AppContextActionType.UPDATE:
-        ret = setNestedState(state, action.path, action.value);
+        target[lastKey] = action.value;
+        ret = newObj;
         break;
       case AppContextActionType.MERGE:
-        ret = mergeNestedState(
-          state,
-          action.path,
-          action.value as Record<string, unknown>,
-        );
+        target[lastKey] = {
+          ...target[lastKey],
+          // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+          ...(action.value as any),
+        };
+        ret = newObj;
         break;
       case AppContextActionType.DELETE:
-        ret = deleteNestedState(state, action.path);
+        delete target[lastKey];
+        ret = newObj;
         break;
       default:
         break;
