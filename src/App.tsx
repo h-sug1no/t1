@@ -16,9 +16,12 @@ import VAEApp from "./vae/VAEApp";
 // Suggested code may be subject to a license. Learn more: ~LicenseLog:1754968550.
 // Suggested code may be subject to a license. Learn more: ~LicenseLog:3284899091.
 
+let nRender = 0;
+const CountView2 = ({ count }: { count: number }) => {
+  return `${nRender++}: ${count}`;
+};
 const CountView = () => {
   const { state, dispatch } = useAppContext();
-
   const countView = useMemo(
     () => (
       <div className="card">
@@ -421,7 +424,10 @@ function App() {
     );
   }, []);
   return (
-    <AppContext.Provider value={{ state, dispatch }}>{ret}</AppContext.Provider>
+    <AppContext.Provider value={{ state, dispatch }}>
+      <CountView2 count={state.count} />
+      {ret}
+    </AppContext.Provider>
   );
 }
 
