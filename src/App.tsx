@@ -6,6 +6,7 @@ import "./App.css";
 import clsx from "clsx";
 import {
   AppContext,
+  createDeleteAction,
   createMergeAction,
   createUpdateAction,
   useAppContext,
@@ -19,7 +20,7 @@ import VAEApp from "./vae/VAEApp";
 let nRender = 0;
 const CountView2 = ({ count }: { count: number }) => {
   console.log(nRender++);
-  return `${count}`;
+  return `CountView2: count=${count}`;
 };
 const CountView = () => {
   const { state, dispatch } = useAppContext();
@@ -407,6 +408,82 @@ function NavigationMenu() {
   });
 }
 
+function TestDataView() {
+  const [state, dispatch] = useAppContextReducer();
+
+  const testData = state.testData;
+  const { stringValue, numberValue } = testData ?? {};
+
+  const ret = useMemo(() => {
+    return (
+      <div
+        style={{
+          border: "solid 1px gray",
+          borderRadius: "5px",
+        }}
+      >
+        <div>
+          {testData && (
+            <>
+              numberValue: {numberValue ?? "undefined"}, stringValue:{" "}
+              {stringValue ?? "undefined"},
+            </>
+          )}
+        </div>
+        <div>
+          <button
+            disabled={!testData}
+            type="button"
+            onClick={() => {
+              dispatch(createDeleteAction("testData"));
+            }}
+          >
+            delete
+          </button>
+
+          <button
+            disabled={testData}
+            type="button"
+            onClick={() => {
+              dispatch(createUpdateAction("testData", {}));
+            }}
+          >
+            init
+          </button>
+
+          <button
+            type="button"
+            disabled={!testData}
+            onClick={() => {
+              dispatch(
+                createMergeAction("testData", {
+                  numberValue: (numberValue ?? 0) + 1,
+                }),
+              );
+            }}
+          >
+            change numberValue
+          </button>
+          <button
+            type="button"
+            disabled={!testData}
+            onClick={() => {
+              dispatch(
+                createMergeAction("testData", {
+                  stringValue: `${stringValue ?? ""}a`,
+                }),
+              );
+            }}
+          >
+            change stringValue
+          </button>
+        </div>
+      </div>
+    );
+  }, [stringValue, numberValue, dispatch, testData]);
+  return ret;
+}
+
 function App() {
   const [state, dispatch] = useAppContextReducer();
   const ret = useMemo(() => {
@@ -415,6 +492,7 @@ function App() {
         <NavigationMenu />
         {window.location.pathname === "/" ? (
           <div className="App">
+            <TestDataView />
             <CountView />
             <AudioDataView />
           </div>

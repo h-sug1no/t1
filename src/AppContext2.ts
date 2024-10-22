@@ -13,9 +13,15 @@ export interface IAudioData {
   loading?: boolean;
 }
 
+export interface ITestData {
+  numberValue?: number;
+  stringValue?: string;
+}
+
 export interface IAppContextState {
   count: number;
   audioData: IAudioData;
+  testData?: ITestData;
 }
 
 const _initialState0: IAppContextState = {
@@ -29,6 +35,7 @@ const _initialState0: IAppContextState = {
     error: undefined,
     loading: false,
   },
+  testData: undefined,
 };
 
 type IStateTypes =
