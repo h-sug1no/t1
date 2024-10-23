@@ -8,14 +8,47 @@ import {
   AppContext,
   createDeleteAction,
   createMergeAction,
+  createResetAction,
   createUpdateAction,
   useAppContext,
   useAppContextReducer,
 } from "./AppContext2";
+import { restoreState, saveState } from "./AppStateStore";
 import VAEApp from "./vae/VAEApp";
 
 // Suggested code may be subject to a license. Learn more: ~LicenseLog:1754968550.
 // Suggested code may be subject to a license. Learn more: ~LicenseLog:3284899091.
+
+const DBView = () => {
+  const { state, dispatch } = useAppContext();
+  const ret = useMemo(() => {
+    return (
+      <div className="uiContainer">
+        IndexedDB store test:
+        <button
+          type="button"
+          onClick={() => {
+            saveState(state);
+          }}
+        >
+          save
+        </button>
+        <button
+          type="button"
+          onClick={async () => {
+            const newState = await restoreState();
+            if (newState) {
+              dispatch(createResetAction(newState));
+            }
+          }}
+        >
+          restore
+        </button>
+      </div>
+    );
+  }, [dispatch, state]);
+  return ret;
+};
 
 let nRender = 0;
 const CountView2 = ({ count }: { count: number }) => {
@@ -409,19 +442,15 @@ function NavigationMenu() {
 }
 
 function TestDataView() {
-  const [state, dispatch] = useAppContextReducer();
+  const { state, dispatch } = useAppContext();
 
   const testData = state.testData;
   const { stringValue, numberValue } = testData ?? {};
 
   const ret = useMemo(() => {
     return (
-      <div
-        style={{
-          border: "solid 1px gray",
-          borderRadius: "5px",
-        }}
-      >
+      <div className="uiContainer">
+        context action test:
         <div>
           {testData && (
             <>
@@ -495,6 +524,7 @@ function App() {
             <TestDataView />
             <CountView />
             <AudioDataView />
+            <DBView />
           </div>
         ) : (
           <VAEApp />

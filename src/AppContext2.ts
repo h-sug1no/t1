@@ -61,6 +61,12 @@ export interface IAppStateAction {
   value?: IStateTypes; // for update|merge
 }
 
+const createResetAction = (value: IStateTypes): IAppStateAction => ({
+  type: AppContextActionType.RESET,
+  path: "",
+  value,
+});
+
 const createUpdateAction = (
   path: string,
   value: IStateTypes,
@@ -168,4 +174,9 @@ export function useAppContext() {
   return useContext(AppContext);
 }
 
-export { createDeleteAction, createMergeAction, createUpdateAction };
+export {
+  createDeleteAction,
+  createMergeAction,
+  createUpdateAction,
+  createResetAction,
+};

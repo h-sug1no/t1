@@ -91,3 +91,9 @@ label input.pending {
   height: 100px;
   background-color: #cff;
 }
+
+.uiContainer {
+  border: solid gray 1px;
+  border-radius: 5px;
+  padding: 5px;
+}
