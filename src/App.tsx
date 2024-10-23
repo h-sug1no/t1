@@ -14,6 +14,7 @@ import {
   useAppContextReducer,
 } from "./AppContext2";
 import { restoreState, saveState } from "./AppStateStore";
+import { arrayBufferToDataUrl } from "./utils/tsutils";
 import VAEApp from "./vae/VAEApp";
 
 // Suggested code may be subject to a license. Learn more: ~LicenseLog:1754968550.
@@ -232,13 +233,10 @@ const AudioFileInputView = () => {
         reader.onload = async (e) => {
           try {
             const data = e.target.result;
-            const blob = new Blob([data], { type: "application/octet-stream" });
-            const dataUrl = URL.createObjectURL(blob);
+            const dataUrl = arrayBufferToDataUrl(data, file.type);
             const audioContext = new AudioContext();
-            const audioBuffer = await audioContext.decodeAudioData(data);
             const newData = {
               dataUrl,
-              audioBuffer,
             };
             dispatch(
               createUpdateAction("audioData", {
@@ -258,7 +256,7 @@ const AudioFileInputView = () => {
             reject(-1);
           }
         };
-        reader.readAsArrayBuffer(file); // ArrayBufferとして読み込む場合
+        reader.readAsArrayBuffer(file);
       } catch (err: unknown) {
         dispatch(
           createUpdateAction("audioData", {
@@ -318,17 +316,15 @@ const AudioDataView = () => {
           }),
         );
         const res = await fetch(url);
+        const type = res.headers.get("content-type");
         const data = await res.arrayBuffer();
-        const blob = new Blob([data], { type: "application/octet-stream" });
-        const dataUrl = URL.createObjectURL(blob);
+        const dataUrl = arrayBufferToDataUrl(data, type);
         const audioContext = new AudioContext();
-        const audioBuffer = await audioContext.decodeAudioData(data);
         dispatch(
           createUpdateAction("audioData", {
             url,
             data: {
               dataUrl,
-              audioBuffer,
             },
             loading: false,
           }),
@@ -351,7 +347,8 @@ const AudioDataView = () => {
   const error = audioData?.error as Error;
   const ret = useMemo(() => {
     return (
-      <div>
+      <div className="uiContainer">
+        audio file or url test:
         {audioData?.url}
         <div>
           {audioData?.loading && "Loading..."}
@@ -400,7 +397,6 @@ const AudioDataView = () => {
                 <button
                   type="button"
                   onClick={() => {
-                    URL.revokeObjectURL(dataUrl);
                     dispatch(
                       createUpdateAction("audioData", {
                         data: {},

@@ -3,7 +3,6 @@ import { createContext, useContext, useReducer } from "react";
 //////////////////////////////////////////////////////////
 export interface IAudioBufferData {
   dataUrl?: string;
-  audioBuffer?: AudioBuffer;
 }
 
 export interface IAudioData {
@@ -30,7 +29,6 @@ const _initialState0: IAppContextState = {
     url: undefined,
     data: {
       dataUrl: undefined,
-      audioBuffer: undefined,
     },
     error: undefined,
     loading: false,
