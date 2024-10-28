@@ -12,6 +12,18 @@ export interface IAudioData {
   loading?: boolean;
 }
 
+export interface ISampleListItem {
+  id: number;
+  name: string;
+}
+
+export interface ISampleListData {
+  loading?: boolean;
+  page: number;
+  maxPage: number;
+  items: Array<ISampleListItem>;
+}
+
 export interface ITestData {
   numberValue?: number;
   stringValue?: string;
@@ -21,6 +33,7 @@ export interface IAppContextState {
   count: number;
   audioData: IAudioData;
   testData?: ITestData;
+  sampleListData: ISampleListData;
 }
 
 const _initialState0: IAppContextState = {
@@ -34,6 +47,11 @@ const _initialState0: IAppContextState = {
     loading: false,
   },
   testData: undefined,
+  sampleListData: {
+    page: 0,
+    maxPage: 0,
+    items: [],
+  },
 };
 
 type IStateTypes =
@@ -43,6 +61,9 @@ type IStateTypes =
   | number
   | IAudioBufferData
   | IAudioData
+  | ISampleListData
+  | ISampleListItem
+  | Array<ISampleListItem>
   | boolean;
 
 //////////////////////////////////////////////////////////

@@ -97,3 +97,14 @@ label input.pending {
   border-radius: 5px;
   padding: 5px;
 }
+
+.itemList .body {
+  overflow: auto;
+  height: 20em;
+}
+
+.itemList .row {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+}

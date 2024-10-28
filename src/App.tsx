@@ -13,6 +13,7 @@ import {
   useAppContext,
   useAppContextReducer,
 } from "./AppContext2";
+import { ItemList } from "./AppSampleList";
 import { restoreState, saveState } from "./AppStateStore";
 import { arrayBufferToDataUrl } from "./utils/tsutils";
 import VAEApp from "./vae/VAEApp";
@@ -517,6 +518,7 @@ function App() {
         <NavigationMenu />
         {window.location.pathname === "/" ? (
           <div className="App">
+            <ItemList />
             <TestDataView />
             <CountView />
             <AudioDataView />
