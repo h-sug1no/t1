@@ -35,6 +35,7 @@ export const ItemList = () => {
   const { state, dispatch } = useAppContext(); // ... (rest of your component code)
 
   const { sampleListData } = state;
+  const { page, maxPage, items, loading } = sampleListData;
 
   const loadMore = useCallback(async () => {
     const fetchItemsData = async () => {
@@ -43,19 +44,22 @@ export const ItemList = () => {
           loading: true,
         }),
       );
-      const newPage = sampleListData.page + 1;
-      const { items, maxPage } = await fetchItems(newPage, 10);
+      const newPage = page + 1;
+      const { items: newItems, maxPage: tMaxPage } = await fetchItems(
+        newPage,
+        10,
+      );
       dispatch(
         createMergeAction("sampleListData", {
           loading: false,
-          maxPage,
+          maxPage: tMaxPage,
           page: newPage,
-          items: [...sampleListData.items, ...items],
+          items: [...newItems, ...items],
         }),
       );
     };
     fetchItemsData();
-  }, [dispatch, sampleListData.page, sampleListData.items]);
+  }, [dispatch, page, items]);
 
   useEffect(() => {
     if (!sampleListData.page) {
@@ -66,7 +70,7 @@ export const ItemList = () => {
   const ret = useMemo(() => {
     return (
       <div className="uiContainer itemList">
-        {sampleListData.page} / {sampleListData.maxPage}
+        {page} / {maxPage}
         <div className="header">
           <div className="row">
             <div className="col idx">idx</div>
@@ -75,34 +79,35 @@ export const ItemList = () => {
           </div>
         </div>
         <div className="body">
-          {sampleListData.items.map((v, idx) => {
-            return (
-              <div key={v.id} className="row">
-                <div className="col idx">{idx}</div>
-                <div className="col id">{v.id}</div>
-                <div className="col name">{v.name}</div>
+          {loading ? (
+            "Loading..."
+          ) : (
+            <>
+              {items.map((v, idx) => {
+                return (
+                  <div key={v.id} className="row">
+                    <div className="col idx">{idx}</div>
+                    <div className="col id">{v.id}</div>
+                    <div className="col name">{v.name}</div>
+                  </div>
+                );
+              })}
+              <div className="row">
+                <button
+                  disabled={page >= maxPage}
+                  type="button"
+                  onClick={() => {
+                    loadMore();
+                  }}
+                >
+                  More
+                </button>
               </div>
-            );
-          })}
-          <div className="row">
-            <button
-              disabled={sampleListData.page >= sampleListData.maxPage}
-              type="button"
-              onClick={() => {
-                loadMore();
-              }}
-            >
-              More
-            </button>
-          </div>
+            </>
+          )}
         </div>
       </div>
     );
-  }, [
-    loadMore,
-    sampleListData.items,
-    sampleListData.maxPage,
-    sampleListData.page,
-  ]);
+  }, [loadMore, items, maxPage, page, loading]);
   return ret;
 };
