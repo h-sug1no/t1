@@ -54,7 +54,7 @@ export const ItemList = () => {
           loading: false,
           maxPage: tMaxPage,
           page: newPage,
-          items: [...newItems, ...items],
+          items: [...items, ...newItems],
         }),
       );
     };
@@ -77,34 +77,31 @@ export const ItemList = () => {
             <div className="col id">id</div>
             <div className="col name">name</div>
           </div>
+          {loading && <div className="loadingDlg">Loading...</div>}
         </div>
         <div className="body">
-          {loading ? (
-            "Loading..."
-          ) : (
-            <>
-              {items.map((v, idx) => {
-                return (
-                  <div key={v.id} className="row">
-                    <div className="col idx">{idx}</div>
-                    <div className="col id">{v.id}</div>
-                    <div className="col name">{v.name}</div>
-                  </div>
-                );
-              })}
-              <div className="row">
-                <button
-                  disabled={page >= maxPage}
-                  type="button"
-                  onClick={() => {
-                    loadMore();
-                  }}
-                >
-                  More
-                </button>
-              </div>
-            </>
-          )}
+          <>
+            {items.map((v, idx) => {
+              return (
+                <div key={v.id} className="row">
+                  <div className="col idx">{idx}</div>
+                  <div className="col id">{v.id}</div>
+                  <div className="col name">{v.name}</div>
+                </div>
+              );
+            })}
+            <div className="row">
+              <button
+                disabled={page >= maxPage}
+                type="button"
+                onClick={() => {
+                  loadMore();
+                }}
+              >
+                More
+              </button>
+            </div>
+          </>
         </div>
       </div>
     );
