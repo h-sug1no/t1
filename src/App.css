@@ -109,7 +109,17 @@ label input.pending {
   justify-content: space-around;
 }
 
+@keyframes font-size-change {
+  0% {
+    font-size: 6px;
+  }
+  100% {
+    font-size: 32px;
+  }
+}
+
 .itemList .loadingDlg {
+  animation: font-size-change 3s linear infinite;
   position: fixed;
   z-index: 5;
   width: 100%;
