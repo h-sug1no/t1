@@ -67,6 +67,7 @@ export const ItemList = () => {
     }
   }, [loadMore, sampleListData.page]);
 
+  const canLoadMore = page < maxPage;
   const ret = useMemo(() => {
     return (
       <div className="uiContainer itemList">
@@ -79,7 +80,20 @@ export const ItemList = () => {
           </div>
           {loading && <div className="loadingDlg">Loading...</div>}
         </div>
-        <div className="body">
+        <div
+          className="body"
+          onScroll={(e) => {
+            const { scrollTop, clientHeight, scrollHeight } =
+              e.target as HTMLDivElement;
+            if (
+              canLoadMore &&
+              !loading &&
+              scrollHeight - (scrollTop + clientHeight) <= 0
+            ) {
+              loadMore();
+            }
+          }}
+        >
           <>
             {items.map((v, idx) => {
               return (
@@ -92,7 +106,7 @@ export const ItemList = () => {
             })}
             <div className="row">
               <button
-                disabled={page >= maxPage}
+                disabled={!canLoadMore}
                 type="button"
                 onClick={() => {
                   loadMore();
