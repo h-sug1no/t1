@@ -119,6 +119,6 @@ export const ItemList = () => {
         </div>
       </div>
     );
-  }, [loadMore, items, maxPage, page, loading]);
+  }, [loadMore, items, maxPage, page, loading, canLoadMore]);
   return ret;
 };
