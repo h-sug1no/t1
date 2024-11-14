@@ -122,10 +122,10 @@ const getNestedTarget = <T>(
 
   const keyArray = keys.slice(0, -1);
 
-  for (const key of keyArray) {
-    target[key] = { ...target[key] };
-    target = target[key];
-  }
+  target = keyArray.reduce((acc, key) => {
+    acc[key] = { ...acc[key] };
+    return acc[key];
+  }, target);
 
   return { newObj: temp, target, lastKey: keys[keys.length - 1] };
 };
