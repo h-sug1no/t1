@@ -15,7 +15,8 @@ import {
 } from "./AppContext2";
 import { ItemList } from "./AppSampleList";
 import { restoreState, saveState } from "./AppStateStore";
-import { arrayBufferToDataUrl } from "./utils/tsutils";
+
+import MuiApp from "./mui/MuiApp";
 import VAEApp from "./vae/VAEApp";
 
 // Suggested code may be subject to a license. Learn more: ~LicenseLog:1754968550.
@@ -427,6 +428,7 @@ const AudioDataView = () => {
 
 function NavigationMenu() {
   return [
+    { pathname: "/MuiApp", label: "MuiApp" },
     { pathname: "/VAEApp", label: "VAEApp" },
     { pathname: "/", label: "audio" },
   ].map(({ pathname, label }) => {
@@ -516,17 +518,26 @@ function App() {
     return (
       <>
         <NavigationMenu />
-        {window.location.pathname === "/" ? (
-          <div className="App">
-            <ItemList />
-            <TestDataView />
-            <CountView />
-            <AudioDataView />
-            <DBView />
-          </div>
-        ) : (
-          <VAEApp />
-        )}
+        {(() => {
+          switch (window.location.pathname) {
+            case "/":
+              return (
+                <div className="App">
+                  <ItemList />
+                  <TestDataView />
+                  <CountView />
+                  <AudioDataView />
+                  <DBView />
+                </div>
+              );
+            case "/VAEApp":
+              return <VAEApp />;
+            case "/MuiApp":
+              return <MuiApp />;
+            default:
+              break;
+          }
+        })()}
       </>
     );
   }, []);
