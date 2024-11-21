@@ -3,6 +3,7 @@ import { createContext, useContext, useState } from "react";
 
 import {
   AppBar,
+  Box,
   Button,
   FormControl,
   FormControlLabel,
@@ -57,21 +58,30 @@ const ThemeSelection = ({
   setSelectedTheme: React.Dispatch<React.SetStateAction<Theme>>;
 }) => {
   return (
-    <FormControl>
-      <FormLabel id="theme-radio-buttons-group-label">Theme</FormLabel>
-      <RadioGroup
-        aria-labelledby="theme-radio-buttons-group-label"
-        name="radio-buttons-group"
-        value={selectedTheme === lightTheme ? "light" : "dark"}
-        onChange={(e) => {
-          const newTheme = e.target.value === "light" ? lightTheme : darkTheme;
-          setSelectedTheme(newTheme);
-        }}
+    <>
+      <a
+        target="mui-theme-creator"
+        href="https://zenoo.github.io/mui-theme-creator/"
       >
-        <FormControlLabel value="light" control={<Radio />} label="Light" />
-        <FormControlLabel value="dark" control={<Radio />} label="Dark" />
-      </RadioGroup>
-    </FormControl>
+        mui-theme-creator
+      </a>
+      <FormControl sx={{ display: "flex", flexDirection: "row" }}>
+        <FormLabel id="theme-radio-buttons-group-label">Theme</FormLabel>
+        <RadioGroup
+          aria-labelledby="theme-radio-buttons-group-label"
+          name="radio-buttons-group"
+          value={selectedTheme === lightTheme ? "light" : "dark"}
+          onChange={(e) => {
+            const newTheme =
+              e.target.value === "light" ? lightTheme : darkTheme;
+            setSelectedTheme(newTheme);
+          }}
+        >
+          <FormControlLabel value="light" control={<Radio />} label="Light" />
+          <FormControlLabel value="dark" control={<Radio />} label="Dark" />
+        </RadioGroup>
+      </FormControl>
+    </>
   );
 };
 
@@ -79,20 +89,26 @@ const ThemeSelection = ({
 const InnerComponent = () => {
   const { theme, setTheme } = useContext(ThemeContext);
   return (
-    <>
+    <Box sx={{ backgroundColor: "lightgray" }}>
       <ThemeSelection selectedTheme={theme} setSelectedTheme={setTheme} />
       <ThemeProvider theme={theme}>
-        <AppBar position="static">
-          <Toolbar>
-            <Typography variant="h6">Theme Switcher Example</Typography>
-          </Toolbar>
-        </AppBar>
-        <Button variant="contained" color="primary">
-          Primary Button
-        </Button>
-        <TextField label="Text Field" variant="outlined" color="secondary" />
+        <Box
+          sx={{
+            backgroundColor: (theme) => theme.palette.background.default,
+          }}
+        >
+          <AppBar position="static">
+            <Toolbar>
+              <Typography variant="h6">Theme Switcher Example</Typography>
+            </Toolbar>
+          </AppBar>
+          <Button variant="contained" color="primary">
+            Primary Button
+          </Button>
+          <TextField label="Text Field" variant="outlined" color="secondary" />
+        </Box>
       </ThemeProvider>
-    </>
+    </Box>
   );
 };
 
