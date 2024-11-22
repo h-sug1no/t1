@@ -58,9 +58,10 @@ const PPInputElement = ({
   const applyState = useCallback(() => {
     window.clearTimeout(timerIdRef.current);
     timerIdRef.current = 0;
-    if (stateValue !== value) {
-      setStateValue(value);
+    if (stateValue === value) {
+      return;
     }
+    setStateValue(value);
   }, [setStateValue, value, stateValue]);
 
   useEffect(() => {
@@ -84,6 +85,11 @@ const PPInputElement = ({
       className={isEditing ? "editing" : ""}
       value={value}
       type={type}
+      onKeyDown={(e: KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === "Enter") {
+          applyState();
+        }
+      }}
       onChange={(e: ChangeEvent<HTMLInputElement>) => {
         onChange(e);
       }}
