@@ -16,8 +16,71 @@ import {
 import { ItemList } from "./AppSampleList";
 import { restoreState, saveState } from "./AppStateStore";
 
+import styled from "@emotion/styled";
+import { setConstantValue } from "typescript";
 import MuiApp from "./mui/MuiApp";
 import VAEApp from "./vae/VAEApp";
+
+const PPContainer = styled.div`
+& input.editing {
+  opacity: 0.6;
+}
+`;
+
+const PPInputElement = ({
+  type,
+  stateValue,
+  setStateValue,
+  delay = 200,
+}: {
+  type: string;
+  stateValue: string;
+  setStateValue: (v: string) => void;
+}) => {
+  const [value, setValue] = useState<string>(stateValue);
+  const timerIdRef = useRef<number>(0);
+
+  const onChange = useCallback(
+    (e: ChangeEvent<HTMLInputElement>) => {
+      const v = e.target.value;
+      setValue(v);
+      window.clearTimeout(timerIdRef.current);
+      timerIdRef.current = window.setTimeout(() => {
+        setStateValue(v);
+        timerIdRef.current = 0;
+      }, delay);
+    },
+    [setStateValue, delay],
+  );
+
+  useEffect(() => {
+    if (!timerIdRef.current) {
+      if (stateValue !== value) {
+        setValue(stateValue);
+      }
+    }
+  }, [stateValue, value]);
+
+  useEffect(() => {
+    return () => {
+      window.clearTimeout(timerIdRef.current);
+      timerIdRef.current = 0;
+    };
+  }, []);
+
+  const isEditing = !!timerIdRef.current;
+
+  return (
+    <input
+      className={isEditing ? "editing" : ""}
+      value={value}
+      type={type}
+      onChange={(e: ChangeEvent<HTMLInputElement>) => {
+        onChange(e);
+      }}
+    />
+  );
+};
 
 // Suggested code may be subject to a license. Learn more: ~LicenseLog:1754968550.
 // Suggested code may be subject to a license. Learn more: ~LicenseLog:3284899091.
@@ -448,7 +511,7 @@ function TestDataView() {
 
   const ret = useMemo(() => {
     return (
-      <div className="uiContainer">
+      <PPContainer className="uiContainer">
         context action test:
         <div>
           {testData && (
@@ -505,8 +568,34 @@ function TestDataView() {
           >
             change stringValue
           </button>
+          {testData && (
+            <div>
+              <PPInputElement
+                type="number"
+                stateValue={(numberValue || 0).toString()}
+                setStateValue={(v: string) => {
+                  dispatch(
+                    createMergeAction("testData", {
+                      numberValue: Number(v),
+                    }),
+                  );
+                }}
+              />
+              <PPInputElement
+                type="text"
+                stateValue={stringValue || ""}
+                setStateValue={(v: string) => {
+                  dispatch(
+                    createMergeAction("testData", {
+                      stringValue: v,
+                    }),
+                  );
+                }}
+              />
+            </div>
+          )}
         </div>
-      </div>
+      </PPContainer>
     );
   }, [stringValue, numberValue, dispatch, testData]);
   return ret;
