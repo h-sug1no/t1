@@ -31,50 +31,38 @@ const PPInputElement = ({
   type,
   stateValue,
   setStateValue,
-  delay = 200,
+  className = "",
 }: {
   type: string;
   stateValue: string;
   setStateValue: (v: string) => void;
+  className: string;
 }) => {
-  const [value, setValue] = useState<string>(stateValue);
-  const timerIdRef = useRef<number>(0);
-
+  const elmRef = useRef<HTMLInputElement | null>(null);
   const onChange = useCallback(
     (e: ChangeEvent<HTMLInputElement>) => {
-      const v = e.target.value;
-      setValue(v);
-      window.clearTimeout(timerIdRef.current);
-      timerIdRef.current = window.setTimeout(() => {
-        setStateValue(v);
-        timerIdRef.current = 0;
-      }, delay);
+      setStateValue(e.target.value);
     },
-    [setStateValue, delay],
+    [setStateValue],
   );
 
   useEffect(() => {
-    if (!timerIdRef.current) {
-      if (stateValue !== value) {
-        setValue(stateValue);
-      }
+    if (!elmRef.current) {
+      return;
     }
-  }, [stateValue, value]);
-
-  useEffect(() => {
-    return () => {
-      window.clearTimeout(timerIdRef.current);
-      timerIdRef.current = 0;
-    };
-  }, []);
-
-  const isEditing = !!timerIdRef.current;
+    const value = elmRef.current?.value;
+    if (stateValue !== value) {
+      elmRef.current.value = stateValue;
+    }
+  }, [stateValue]);
 
   return (
     <input
-      className={isEditing ? "editing" : ""}
-      value={value}
+      className={`ppInputElement ${className}`}
       type={type}
+      ref={(elm) => {
+        elmRef.current = elm;
+      }}
       onChange={(e: ChangeEvent<HTMLInputElement>) => {
         onChange(e);
       }}
