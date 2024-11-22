@@ -31,7 +31,7 @@ const PPInputElement = ({
   type,
   stateValue,
   setStateValue,
-  delay = 200,
+  delay = 1000,
 }: {
   type: string;
   stateValue: string;
@@ -53,13 +53,24 @@ const PPInputElement = ({
     [setStateValue, delay],
   );
 
-  useEffect(() => {
-    if (!timerIdRef.current) {
-      if (stateValue !== value) {
-        setValue(stateValue);
-      }
+  const isEditing = !!timerIdRef.current;
+
+  const applyState = useCallback(() => {
+    window.clearTimeout(timerIdRef.current);
+    timerIdRef.current = 0;
+    if (stateValue !== value) {
+      setStateValue(value);
     }
-  }, [stateValue, value]);
+  }, [setStateValue, value, stateValue]);
+
+  useEffect(() => {
+    if (isEditing) {
+      return;
+    }
+    if (stateValue !== value) {
+      setValue(stateValue);
+    }
+  }, [stateValue, value, isEditing]);
 
   useEffect(() => {
     return () => {
@@ -67,8 +78,6 @@ const PPInputElement = ({
       timerIdRef.current = 0;
     };
   }, []);
-
-  const isEditing = !!timerIdRef.current;
 
   return (
     <input
@@ -78,6 +87,7 @@ const PPInputElement = ({
       onChange={(e: ChangeEvent<HTMLInputElement>) => {
         onChange(e);
       }}
+      onBlur={applyState}
     />
   );
 };
