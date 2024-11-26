@@ -23,6 +23,7 @@ import VAEApp from "./vae/VAEApp";
 const PPContainer = styled.div`
 & input.editing {
   opacity: 0.6;
+  background-color: #eee;
 }
 `;
 
