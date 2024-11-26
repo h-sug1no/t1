@@ -1,6 +1,5 @@
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-nocheck
-import React, { useRef } from "react";
+import type React from "react";
+import { useRef } from "react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import "./App.css";
 import clsx from "clsx";
@@ -17,8 +16,8 @@ import { ItemList } from "./AppSampleList";
 import { restoreState, saveState } from "./AppStateStore";
 
 import styled from "@emotion/styled";
-import { setConstantValue } from "typescript";
 import MuiApp from "./mui/MuiApp";
+import { arrayBufferToDataUrl } from "./utils/tsutils";
 import VAEApp from "./vae/VAEApp";
 
 const PPContainer = styled.div`
@@ -31,29 +30,32 @@ const PPInputElement = ({
   type,
   stateValue,
   setStateValue,
-  delay = 1000,
+  delay = Number.NaN,
 }: {
   type: string;
   stateValue: string;
+  delay?: number;
   setStateValue: (v: string) => void;
 }) => {
   const [value, setValue] = useState<string>(stateValue);
   const timerIdRef = useRef<number>(0);
 
   const onChange = useCallback(
-    (e: ChangeEvent<HTMLInputElement>) => {
+    (e: React.ChangeEvent<HTMLInputElement>) => {
       const v = e.target.value;
       setValue(v);
       window.clearTimeout(timerIdRef.current);
-      timerIdRef.current = window.setTimeout(() => {
-        setStateValue(v);
-        timerIdRef.current = 0;
-      }, delay);
+      if (!Number.isNaN(delay)) {
+        timerIdRef.current = window.setTimeout(() => {
+          setStateValue(v);
+          timerIdRef.current = 0;
+        }, delay);
+      }
     },
     [setStateValue, delay],
   );
 
-  const isEditing = !!timerIdRef.current;
+  const isEditing = value !== stateValue;
 
   const applyState = useCallback(() => {
     window.clearTimeout(timerIdRef.current);
@@ -82,15 +84,16 @@ const PPInputElement = ({
 
   return (
     <input
+      title="Press Enter key or move focus to apply this change."
       className={isEditing ? "editing" : ""}
       value={value}
       type={type}
-      onKeyDown={(e: KeyboardEvent<HTMLInputElement>) => {
+      onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === "Enter") {
           applyState();
         }
       }}
-      onChange={(e: ChangeEvent<HTMLInputElement>) => {
+      onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
         onChange(e);
       }}
       onBlur={applyState}
@@ -166,14 +169,9 @@ const CountView = () => {
   return countView;
 };
 
-const T = () => {
-  return <span />;
-};
-
 const AudioUIView = ({ audioElm }: { audioElm: HTMLMediaElement | null }) => {
   const [, setRepaintCount] = useState(0);
-  const { state } = useAppContext();
-  const { audioData = {} } = state;
+  // const { state } = useAppContext();
 
   useEffect(() => {
     let requestId: number;
@@ -194,9 +192,9 @@ const AudioUIView = ({ audioElm }: { audioElm: HTMLMediaElement | null }) => {
     value: 1,
   });
   const onPlaybackRateInput = useCallback(
-    (e) => {
+    (e: React.FormEvent<HTMLInputElement>) => {
       const { current } = playbackRateInputRef;
-      const v = Number(e.target.value);
+      const v = Number((e.target as HTMLInputElement).value);
       if (v <= 0) {
         return;
       }
@@ -256,7 +254,7 @@ const AudioUIView = ({ audioElm }: { audioElm: HTMLMediaElement | null }) => {
             <label className="playbackRate-label">
               playbackRate:
               <input
-                className={isPending ? "pending" : null}
+                className={isPending ? "pending" : ""}
                 type="number"
                 min="0.1"
                 max="5"
@@ -287,7 +285,7 @@ const AudioUIView = ({ audioElm }: { audioElm: HTMLMediaElement | null }) => {
 
 const AudioFileInputView = () => {
   const { /*state,*/ dispatch } = useAppContext();
-  const audioFileInputRef = useRef();
+  const audioFileInputRef = useRef<HTMLInputElement | null>(null);
   const [isHover, setIsHover] = useState(false);
 
   const loadFileCB = useCallback(async () => {
@@ -300,7 +298,7 @@ const AudioFileInputView = () => {
       return;
     }
     return new Promise((resolve, reject) => {
-      const file = files[0];
+      const file = files[0] as File;
       const url = `local file: ${file.name}: ${file.size} bytes`;
       try {
         dispatch(
@@ -313,9 +311,14 @@ const AudioFileInputView = () => {
         const reader = new FileReader();
         reader.onload = async (e) => {
           try {
-            const data = e.target.result;
-            const dataUrl = arrayBufferToDataUrl(data, file.type);
-            const audioContext = new AudioContext();
+            const data = e.target?.result;
+            if (!data) {
+              throw new Error("null data");
+            }
+            const dataUrl = arrayBufferToDataUrl(
+              data as ArrayBuffer,
+              file.type,
+            );
             const newData = {
               dataUrl,
             };
@@ -385,7 +388,7 @@ const AudioDataView = () => {
   const [audioElm, setAudioElm] = useState<HTMLMediaElement | null>(null);
 
   const { state, dispatch } = useAppContext();
-  const textareaRef = useRef();
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const loadCB = useCallback(
     async (url: string) => {
       try {
@@ -399,8 +402,7 @@ const AudioDataView = () => {
         const res = await fetch(url);
         const type = res.headers.get("content-type");
         const data = await res.arrayBuffer();
-        const dataUrl = arrayBufferToDataUrl(data, type);
-        const audioContext = new AudioContext();
+        const dataUrl = arrayBufferToDataUrl(data, type as string);
         dispatch(
           createUpdateAction("audioData", {
             url,
@@ -549,7 +551,7 @@ function TestDataView() {
           </button>
 
           <button
-            disabled={testData}
+            disabled={!!testData}
             type="button"
             onClick={() => {
               dispatch(createUpdateAction("testData", {}));
