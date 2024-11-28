@@ -1,6 +1,7 @@
 // MuiApp.tsx
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useEffect, useMemo, useState } from "react";
 
+import styled from "@emotion/styled";
 import {
   AppBar,
   Box,
@@ -17,6 +18,96 @@ import {
 import { type Theme, ThemeProvider, createTheme } from "@mui/material/styles";
 // biome-ignore lint/style/useImportType: <explanation>
 import React from "react";
+
+//////////////////////////////////////////////////////////////
+
+const BeatUITrack = styled.div`
+  position: relative;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  border: solid 1px black;
+
+  width: 400px;
+  height: 100px;
+
+  & .barContainer {
+    box-sizing: content-box;
+    height: 100%;
+    width: 100%;
+    display: flex;
+    & .bar {
+      box-sizing: border-box;
+      height: 100%;
+      width: 25%;
+      &:nth-of-type(1), &:nth-of-type(3) {
+        background-color: #ddeeee;
+      }
+      &:nth-of-type(2), &:nth-of-type(4) {
+        background-color: #eeeedd;
+      }
+    }
+  }
+  & .markerContainer {
+    box-sizing:content-box;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    background-color: rgba(100,10,10,0.2);
+    & .marker {
+      box-sizing: content-box;
+      width: 4px;
+      position: absolute;
+      top: 0;
+      height: 100%;
+      background-color: black;
+    }
+  }
+`;
+
+const BeatUI = () => {
+  const [count, setRepaintCount] = useState(0);
+  useEffect(() => {
+    let requestId: number;
+    const draw = () => {
+      setRepaintCount((v) => v + 1);
+      requestId = requestAnimationFrame(draw);
+    };
+
+    requestId = requestAnimationFrame(draw);
+
+    return () => {
+      cancelAnimationFrame(requestId);
+    };
+  }, []);
+
+  const marker = useMemo(() => {
+    const beat = 30 * 20;
+    return (
+      <div
+        className="marker"
+        style={{
+          left: `calc(${((count % beat) / beat) * 100}% - 2px)`,
+        }}
+      />
+    );
+  }, [count]);
+
+  return (
+    <BeatUITrack className="track">
+      <div className="barContainer">
+        <div className="bar" />
+        <div className="bar" />
+        <div className="bar" />
+        <div className="bar" />
+      </div>
+      <div className="markerContainer">{marker}</div>
+    </BeatUITrack>
+  );
+};
+
+//////////////////////////////////////////////////////////////
 
 // Define two custom MUI themes
 const lightTheme: Theme = createTheme({
@@ -91,6 +182,7 @@ const InnerComponent = () => {
   return (
     <Box sx={{ backgroundColor: "lightgray" }}>
       <ThemeSelection selectedTheme={theme} setSelectedTheme={setTheme} />
+      <BeatUI />
       <ThemeProvider theme={theme}>
         <Box
           sx={{
