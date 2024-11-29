@@ -18,10 +18,10 @@ import {
 import { type Theme, ThemeProvider, createTheme } from "@mui/material/styles";
 // biome-ignore lint/style/useImportType: <explanation>
 import React from "react";
+import { MuiKonvaTest } from "./MuiKonvaTest";
 
 //////////////////////////////////////////////////////////////
 
-// FIXME: Konva version?
 const BeatUITrack = styled.div`
   position: relative;
   box-sizing: border-box;
@@ -65,6 +65,13 @@ const BeatUITrack = styled.div`
       background-color: black;
     }
   }
+
+  margin-bottom: 100%;
+  & .konvaStageContainer {
+    width: 100%;
+    height: 100%;
+    background-color: pink;
+  }
 `;
 
 const BeatUI = () => {
@@ -104,6 +111,7 @@ const BeatUI = () => {
         <div className="bar" />
       </div>
       <div className="markerContainer">{marker}</div>
+      <MuiKonvaTest />
     </BeatUITrack>
   );
 };
