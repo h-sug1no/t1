@@ -23,8 +23,17 @@ import type { ColDef, GridApi, GridReadyEvent } from "ag-grid-community";
 
 const TContainer = styled.div`
  width: 800px;
+ overflow: hidden;
  & > div {
   width: 100%;
+  border-radius: 8px;
+ }
+
+ border: solid 1px gray;
+ border-radius: 5px;
+
+ & .ag-root-wrapper {
+  border: none;
  }
  & .ag-theme-alpine.ag-popup {
   position: fixed;
@@ -33,6 +42,7 @@ const TContainer = styled.div`
 }
 
 & .ag-theme-alpine {
+  padding: 0;
   height: 400px;
   overflow: auto;
   &.card {
