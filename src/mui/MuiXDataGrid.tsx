@@ -9,6 +9,7 @@ import {
 } from "react";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
+import styled from "@emotion/styled";
 import {
   Button,
   Card,
@@ -19,6 +20,30 @@ import {
   Typography,
 } from "@mui/material";
 import type { ColDef, GridApi, GridReadyEvent } from "ag-grid-community";
+
+const TContainer = styled.div`
+ width: 800px;
+ & > div {
+  width: 100%;
+ }
+ & .ag-theme-alpine.ag-popup {
+  position: fixed;
+  min-height: 300px !important;
+  width: 100% !important;
+}
+
+& .ag-theme-alpine {
+  height: 400px;
+  overflow: auto;
+  &.card {
+    height: 80px;
+    overflow: hidden;
+    & .ag-center-cols-container {
+      display: none;
+    }
+  }
+}
+`;
 
 type IRow = {
   id: number;
@@ -140,43 +165,38 @@ const App = () => {
       </Tooltip>
 
       {/* ag-Gridは常に表示 */}
-      <div
-        className="ag-theme-alpine"
-        style={{
-          height: viewMode === "card" ? 50 : 400, // "card"ビューの場合、テーブルのボディ高さを0に設定
-          width: "100%",
-          overflow: "hidden",
-        }}
-      >
-        <AgGridReact
-          rowData={rowData}
-          columnDefs={columnDefs}
-          onGridReady={handleGridReady}
-          onFilterChanged={handleStateChange}
-          onSortChanged={handleStateChange}
-          domLayout="autoHeight"
-        />
-      </div>
+      <TContainer>
+        <div className={`ag-theme-alpine ${viewMode}`}>
+          <AgGridReact
+            rowData={rowData}
+            columnDefs={columnDefs}
+            onGridReady={handleGridReady}
+            onFilterChanged={handleStateChange}
+            onSortChanged={handleStateChange}
+            domLayout="autoHeight"
+          />
+        </div>
 
-      {/* "card"ビューの表示 */}
-      {viewMode === "card" && (
-        <Grid
-          container
-          spacing={2}
-          style={{ maxHeight: 400, overflowY: "auto" }}
-        >
-          {filteredData.map((row) => (
-            <Grid item xs={12} sm={6} md={4} key={row.id}>
-              <Card>
-                <CardContent>
-                  <Typography variant="h6">{row.col1}</Typography>
-                  <Typography variant="body2">{row.col2}</Typography>
-                </CardContent>
-              </Card>
-            </Grid>
-          ))}
-        </Grid>
-      )}
+        {/* "card"ビューの表示 */}
+        {viewMode === "card" && (
+          <Grid
+            container
+            spacing={2}
+            style={{ maxHeight: 400, overflowY: "auto" }}
+          >
+            {filteredData.map((row) => (
+              <Grid item xs={12} sm={6} md={4} key={row.id}>
+                <Card>
+                  <CardContent>
+                    <Typography variant="h6">{row.col1}</Typography>
+                    <Typography variant="body2">{row.col2}</Typography>
+                  </CardContent>
+                </Card>
+              </Grid>
+            ))}
+          </Grid>
+        )}
+      </TContainer>
     </div>
   );
 };
