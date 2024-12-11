@@ -1,6 +1,12 @@
 import { AgGridReact } from "ag-grid-react";
 // 必要なモジュールをインポート
-import React, { useState, useMemo, useRef, useEffect } from "react";
+import {
+  type ChangeEvent,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
 import {
@@ -12,7 +18,7 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import type { ColGroupDef, GridApi } from "ag-grid-community";
+import type { ColDef, GridApi, GridReadyEvent } from "ag-grid-community";
 
 type IRow = {
   id: number;
@@ -27,45 +33,49 @@ for (let i = 0; i < 400; i += 1) {
 const App = () => {
   const [rowData] = useState<Array<IRow>>(rows);
 
-  const [columnDefs] = useState<ColGroupDef<IRow>>([
+  const [columnDefs] = useState<ColDef<IRow>[]>([
     { field: "col1", sortable: true, filter: true, headerName: "Column 1" },
     { field: "col2", sortable: true, filter: true, headerName: "Column 2" },
   ]);
 
   const [viewMode, setViewMode] = useState("table");
 
-  const filterModel = useRef(null);
-  const sortModel = useRef(null);
   const gridApiRef = useRef<GridApi<IRow>>(null);
-  const gridColumnApiRef = useRef(null);
+  //const gridColumnApiRef = useRef(null);
 
   const [filteredData, setFilteredData] = useState(rowData);
   const [searchText, setSearchText] = useState("");
 
-  useEffect(() => {
+  const resolveFilteredData = useCallback(() => {
     if (gridApiRef.current) {
       const allData: Array<IRow> = [];
-      gridApiRef.current.forEachNodeAfterFilterAndSort((node) =>
-        allData.push(node.data),
-      );
+      gridApiRef.current.forEachNodeAfterFilterAndSort((node) => {
+        let ret = allData.length;
+        if (node.data) {
+          ret = allData.push(node.data);
+        }
+        return ret;
+      });
       setFilteredData(allData);
     }
-  }, [viewMode, rowData]);
+  }, []);
 
-  const handleGridReady = (params) => {
-    gridApiRef.current = params.api as GridApi<IRow>;
-    gridColumnApiRef.current = params.columnApi;
+  useEffect(() => {
+    resolveFilteredData();
+  }, [
+    resolveFilteredData,
+    /*viewMode, rowData*/
+  ]);
+
+  const handleGridReady = (params: GridReadyEvent<IRow>) => {
+    // @ts-ignore
+    gridApiRef.current = params.api;
+    // gridColumnApiRef.current = params.columnApi;
   };
 
   // フィルタとソートの状態更新
   const handleStateChange = () => {
-    if (gridApiRef.current) {
-      const allData: Array<IRow> = [];
-      gridApiRef.current.forEachNodeAfterFilterAndSort((node) =>
-        allData.push(node.data),
-      );
-      setFilteredData(allData);
-    }
+    resolveFilteredData();
   };
 
   /*
@@ -77,8 +87,8 @@ const App = () => {
   }, [viewMode]); // ビューモードが変更されたときのみ適用
 */
   // フリーテキスト検索フィルタ
-  const handleSearchChange = (event) => {
-    const value = event.target.value;
+  const handleSearchChange = (event: ChangeEvent) => {
+    const value = (event.target as HTMLInputElement).value;
     setSearchText(value);
     if (gridApiRef.current) {
       gridApiRef.current.setGridOption("quickFilterText", value);
@@ -89,9 +99,7 @@ const App = () => {
   const getFilterState = () => {
     if (gridApiRef.current) {
       const filterState = gridApiRef.current.getFilterModel();
-      const filterInfo = Object.entries(filterState)
-        .map(([column, filter]) => `${column}: ${filter.filter}`)
-        .join(", ");
+      const filterInfo = JSON.stringify(filterState);
       return filterInfo || "No filters applied";
     }
     return "No filters applied";
