@@ -19,6 +19,7 @@ import { type Theme, ThemeProvider, createTheme } from "@mui/material/styles";
 // biome-ignore lint/style/useImportType: <explanation>
 import React from "react";
 import { MuiKonvaTest } from "./MuiKonvaTest";
+import CardDataGridWithFilters from "./MuiXDataGrid";
 
 //////////////////////////////////////////////////////////////
 
@@ -216,12 +217,15 @@ const InnerComponent = () => {
 const MuiApp: React.FC = () => {
   const [theme, setTheme] = useState<Theme>(lightTheme);
   return (
-    <ThemeContext.Provider value={{ theme, setTheme }}>
-      <ThemeProvider theme={theme}>
-        {/* Default theme */}
-        <InnerComponent />
-      </ThemeProvider>
-    </ThemeContext.Provider>
+    <>
+      <CardDataGridWithFilters />
+      <ThemeContext.Provider value={{ theme, setTheme }}>
+        <ThemeProvider theme={theme}>
+          {/* Default theme */}
+          <InnerComponent />
+        </ThemeProvider>
+      </ThemeContext.Provider>
+    </>
   );
 };
 
