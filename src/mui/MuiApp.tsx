@@ -20,6 +20,7 @@ import { type Theme, ThemeProvider, createTheme } from "@mui/material/styles";
 import React from "react";
 import { MuiKonvaTest } from "./MuiKonvaTest";
 import CardDataGridWithFilters from "./MuiXDataGrid";
+import MuiXDataGrid2 from "./MuiXDataGrid2";
 
 //////////////////////////////////////////////////////////////
 
@@ -218,6 +219,7 @@ const MuiApp: React.FC = () => {
   const [theme, setTheme] = useState<Theme>(lightTheme);
   return (
     <>
+      <MuiXDataGrid2 />
       <CardDataGridWithFilters />
       <ThemeContext.Provider value={{ theme, setTheme }}>
         <ThemeProvider theme={theme}>

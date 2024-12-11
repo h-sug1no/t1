@@ -16,6 +16,7 @@
     "@emotion/styled": "^11.13.5",
     "@magenta/music": "^1.23.1",
     "@mui/material": "^6.1.8",
+    "@mui/x-data-grid": "^7.23.1",
     "ag-grid-community": "^32.3.3",
     "ag-grid-react": "^32.3.3",
     "clsx": "^2.1.1",
