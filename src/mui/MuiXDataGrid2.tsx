@@ -161,6 +161,7 @@ const App: React.FC = () => {
             apiRef={apiRef}
             disableDensitySelector
             disableColumnSelector
+            disableMultipleRowSelection
             checkboxSelection
             onSortModelChange={onStateUpdate}
             onFilterModelChange={onStateUpdate}
@@ -200,6 +201,7 @@ const App: React.FC = () => {
                     apiRef.current?.selectRow(
                       row.id,
                       !apiRef.current?.isRowSelected(row.id),
+                      true,
                     );
                   }}
                 >
