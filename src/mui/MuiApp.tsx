@@ -219,8 +219,12 @@ const MuiApp: React.FC = () => {
   const [theme, setTheme] = useState<Theme>(lightTheme);
   return (
     <>
-      <MuiXDataGrid2 />
-      <CardDataGridWithFilters />
+      <div>
+        <MuiXDataGrid2 />
+      </div>
+      <div style={{ marginTop: "200px" }}>
+        <CardDataGridWithFilters />
+      </div>
       <ThemeContext.Provider value={{ theme, setTheme }}>
         <ThemeProvider theme={theme}>
           {/* Default theme */}
