@@ -17,6 +17,7 @@ import { restoreState, saveState } from "./AppStateStore";
 
 import styled from "@emotion/styled";
 import MuiApp from "./mui/MuiApp";
+import { MuiKonvaTest } from "./mui/MuiKonvaTest";
 import { arrayBufferToDataUrl } from "./utils/tsutils";
 import VAEApp from "./vae/VAEApp";
 
@@ -512,12 +513,13 @@ function NavigationMenu() {
   return [
     { pathname: "/MuiApp", label: "MuiApp" },
     { pathname: "/VAEApp", label: "VAEApp" },
+    { pathname: "/MuiKonvaApp", label: "MuiKonvaApp" },
     { pathname: "/", label: "audio" },
   ].map(({ pathname, label }) => {
     return window.location.pathname === pathname ? null : (
-      <div key={`${pathname}_${label}`}>
+      <span key={`${pathname}_${label}`} style={{ margin: "5px" }}>
         <a href={pathname}>{label ?? pathname} →</a>
-      </div>
+      </span>
     );
   });
 }
@@ -625,7 +627,9 @@ function App() {
   const ret = useMemo(() => {
     return (
       <>
-        <NavigationMenu />
+        <div>
+          <NavigationMenu />
+        </div>
         {(() => {
           switch (window.location.pathname) {
             case "/":
@@ -642,6 +646,8 @@ function App() {
               return <VAEApp />;
             case "/MuiApp":
               return <MuiApp />;
+            case "/MuiKonvaApp":
+              return <MuiKonvaTest />;
             default:
               break;
           }

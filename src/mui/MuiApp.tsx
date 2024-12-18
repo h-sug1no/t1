@@ -18,7 +18,6 @@ import {
 import { type Theme, ThemeProvider, createTheme } from "@mui/material/styles";
 // biome-ignore lint/style/useImportType: <explanation>
 import React from "react";
-import { MuiKonvaTest } from "./MuiKonvaTest";
 import CardDataGridWithFilters from "./MuiXDataGrid";
 import MuiXDataGrid2 from "./MuiXDataGrid2";
 
@@ -113,7 +112,6 @@ const BeatUI = () => {
         <div className="bar" />
       </div>
       <div className="markerContainer">{marker}</div>
-      <MuiKonvaTest />
     </BeatUITrack>
   );
 };

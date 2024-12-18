@@ -105,6 +105,11 @@ export const MuiKonvaTest = () => {
             h: divElm?.clientHeight || 0,
           });
         }}
+        style={{
+          width: "calc(100vw - 200px)",
+          height: "70vh",
+          backgroundColor: "#ddd",
+        }}
       >
         {stage}
       </div>
