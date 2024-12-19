@@ -65,15 +65,23 @@ const PianoRoll: React.FC<PianoRollProps> = ({ ppqn, numOfBars }) => {
   const barHeight = 128 * noteHeight; // ピアノロールの高さ（128ピッチ分の高さ）
 
   // scrollXのmin,maxを動的に算出
-  const scrollXMax = PIANO_LABEL_SIZE.w;
-  const scrollXMin = -Math.max(
+  const scrollXMax = Math.max(
     0,
-    numOfBars * barWidth * zoom - (stageSize.width - PIANO_LABEL_SIZE.w * zoom),
+    PIANO_LABEL_SIZE.w * zoom -
+      Math.min(PIANO_LABEL_SIZE.w * zoom, stageSize.width),
+  );
+  const scrollXMin = Math.min(
+    0,
+    -(
+      numOfBars * barWidth * zoom -
+      stageSize.width +
+      PIANO_LABEL_SIZE.w * zoom
+    ),
   );
 
-  // scrollYのmin,maxを設定（固定値）
-  const scrollYMin = -500;
-  const scrollYMax = 500;
+  // scrollYのmin,maxを動的に算出
+  const scrollYMin = Math.min(0, -(barHeight * zoom - stageSize.height));
+  const scrollYMax = 0;
 
   useEffect(() => {
     const stage = stageRef.current;
