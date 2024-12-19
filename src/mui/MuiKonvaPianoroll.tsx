@@ -1,6 +1,8 @@
+// Suggested code may be subject to a license. Learn more: ~LicenseLog:3303311065.
+// Suggested code may be subject to a license. Learn more: ~LicenseLog:1424122781.
 import type Konva from "konva";
 import type React from "react";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Group, Layer, Line, Rect, Stage, Text } from "react-konva";
 
 interface PianoRollProps {
@@ -29,18 +31,21 @@ function isWhiteKey(midiPitch: number): boolean {
   const note = midiPitch % 12;
   return [0, 2, 4, 5, 7, 9, 11].includes(note);
 }
+const PIANO_LABEL_SIZE = {
+  w: 40,
+};
 
 const PianoRoll: React.FC<PianoRollProps> = ({ ppqn, numOfBars }) => {
   const stageRef = useRef<Konva.Stage | null>(null);
   const pianoLayerRef = useRef<Konva.Layer | null>(null);
 
-  const [zoom, setZoom] = useState(1);
+  const [zoom, setZoom] = useState(1.0);
   const [scrollX, setScrollX] = useState(0);
   const [scrollY, setScrollY] = useState(0);
+  const [stageSize, setStageSize] = useState({ width: 500, height: 500 });
 
-  const noteHeight = 10; // 各MIDIノートの高さ
-  const barHeight = 128 * noteHeight; // ピアノロールの高さ（128ピッチ分の高さ）
-
+  const minZoom = 0.5;
+  const maxZoom = 2.0;
   // 1小節のtick数
   const ticksPerBar = ppqn * 4; // 1小節のtick数（4分音符の場合）
 
@@ -48,6 +53,16 @@ const PianoRoll: React.FC<PianoRollProps> = ({ ppqn, numOfBars }) => {
   const barWidth = 100; // 1tickが100ピクセルに対応（適宜スケールを変更）
 
   const pitches = Array.from({ length: 128 }, (_, i) => i); // MIDIピッチ 0-127
+
+  // ズーム範囲の動的な計算
+  const zoomRangeMin = Math.max(
+    minZoom,
+    stageSize.width / (numOfBars * barWidth + PIANO_LABEL_SIZE.w),
+  );
+  const zoomRangeMax = Math.min(maxZoom, stageSize.width / barWidth);
+
+  const noteHeight = 10; // 各MIDIノートの高さ
+  const barHeight = 128 * noteHeight; // ピアノロールの高さ（128ピッチ分の高さ）
 
   useEffect(() => {
     const stage = stageRef.current;
@@ -91,9 +106,9 @@ const PianoRoll: React.FC<PianoRollProps> = ({ ppqn, numOfBars }) => {
         <Line
           key={`pitch-${i}`}
           points={[
-            50,
+            0,
             i * pitchSpacing,
-            numOfBars * barWidth + 50,
+            numOfBars * barWidth + 0,
             i * pitchSpacing,
           ]} // グリッド線
           stroke="gray"
@@ -111,8 +126,6 @@ const PianoRoll: React.FC<PianoRollProps> = ({ ppqn, numOfBars }) => {
     return null; // 今は実装しない
   };
 
-  // ピッチラベル（テキスト）を描画
-  // const renderPitchLa// 鍵盤部分とピッチラベルを描画
   const renderPianoKeysAndLabels = () => {
     const keysAndLabels: JSX.Element[] = [];
     for (let i = 127; i >= 0; i--) {
@@ -123,7 +136,7 @@ const PianoRoll: React.FC<PianoRollProps> = ({ ppqn, numOfBars }) => {
           <Rect
             x={0}
             y={yPos}
-            width={50}
+            width={PIANO_LABEL_SIZE.w}
             height={noteHeight}
             fill={color}
             stroke="black"
@@ -135,7 +148,7 @@ const PianoRoll: React.FC<PianoRollProps> = ({ ppqn, numOfBars }) => {
             text={`${i}:${getNoteName(i)}`}
             fontSize={8}
             fill={isWhiteKey(i) ? "black" : "#ddd"}
-            width={50}
+            width={PIANO_LABEL_SIZE.w}
             align="center"
           />
         </Group>,
@@ -144,6 +157,23 @@ const PianoRoll: React.FC<PianoRollProps> = ({ ppqn, numOfBars }) => {
     return keysAndLabels;
   };
 
+  const handleResize = useCallback(() => {
+    const container = document.querySelector(
+      ".stage-container",
+    ) as HTMLDivElement;
+    if (container) {
+      setStageSize({
+        width: container.offsetWidth,
+        height: container.offsetHeight,
+      });
+    }
+  }, []);
+
+  useEffect(() => {
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [handleResize]);
   return (
     <div>
       <div>
@@ -152,8 +182,8 @@ const PianoRoll: React.FC<PianoRollProps> = ({ ppqn, numOfBars }) => {
           Zoom:
           <input
             type="range"
-            min="0.5"
-            max="2"
+            min={zoomRangeMin}
+            max={zoomRangeMax}
             step="0.1"
             value={zoom}
             onChange={(e) => setZoom(Number.parseFloat(e.target.value))}
@@ -184,8 +214,9 @@ const PianoRoll: React.FC<PianoRollProps> = ({ ppqn, numOfBars }) => {
       </div>
 
       <div
+        className="stage-container"
         style={{
-          width: "500px",
+          width: "80vw",
           height: "500px",
           backgroundColor: "#ddd",
           overflow: "hidden",
@@ -194,11 +225,7 @@ const PianoRoll: React.FC<PianoRollProps> = ({ ppqn, numOfBars }) => {
           marginTop: "2em",
         }}
       >
-        <Stage
-          ref={stageRef}
-          width={500} // 画面サイズは適宜変更
-          height={500} // 画面サイズは適宜変更
-        >
+        <Stage ref={stageRef} width={stageSize.width} height={stageSize.height}>
           <Layer ref={pianoLayerRef}>
             {renderPitchGrid()}
             {renderBarLines()}
