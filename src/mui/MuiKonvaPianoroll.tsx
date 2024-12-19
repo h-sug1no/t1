@@ -32,6 +32,8 @@ function isWhiteKey(midiPitch: number): boolean {
 
 const PianoRoll: React.FC<PianoRollProps> = ({ ppqn, numOfBars }) => {
   const stageRef = useRef<Konva.Stage | null>(null);
+  const pianoLayerRef = useRef<Konva.Layer | null>(null);
+
   const [zoom, setZoom] = useState(1);
   const [scrollX, setScrollX] = useState(0);
   const [scrollY, setScrollY] = useState(0);
@@ -52,7 +54,9 @@ const PianoRoll: React.FC<PianoRollProps> = ({ ppqn, numOfBars }) => {
     if (stage) {
       // スクロールとズームを設定
       stage.scale({ x: zoom, y: zoom });
-      stage.x(scrollX);
+      if (pianoLayerRef.current) {
+        pianoLayerRef.current.x(scrollX);
+      }
       stage.y(scrollY);
       stage.batchDraw();
     }
@@ -195,12 +199,12 @@ const PianoRoll: React.FC<PianoRollProps> = ({ ppqn, numOfBars }) => {
           width={500} // 画面サイズは適宜変更
           height={500} // 画面サイズは適宜変更
         >
-          <Layer>
-            {renderPianoKeysAndLabels()}
+          <Layer ref={pianoLayerRef}>
             {renderPitchGrid()}
             {renderBarLines()}
             {renderNotes()}
           </Layer>
+          <Layer x={0}>{renderPianoKeysAndLabels()}</Layer>
         </Stage>
       </div>
     </div>
