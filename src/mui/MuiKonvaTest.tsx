@@ -1,6 +1,11 @@
 import type Konva from "konva";
 import React, { useCallback, useMemo, useState } from "react";
 import { Layer, Stage, Star, Text } from "react-konva";
+import PianoRoll from "./MuiKonvaPianoroll";
+
+//////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////
 
 function generateShapes() {
   return [...Array(10)].map((_, i) => ({
@@ -14,7 +19,7 @@ function generateShapes() {
 
 const INITIAL_STATE = generateShapes();
 
-export const MuiKonvaTest = () => {
+const MuiKonvaTest0 = () => {
   const [stars, setStars] = React.useState(INITIAL_STATE);
 
   const [containerSize, setContainerSize] = useState<{ w: number; h: number }>({
@@ -117,4 +122,12 @@ export const MuiKonvaTest = () => {
     [stage],
   );
   return ret;
+};
+
+const use0 = false;
+export const MuiKonvaTest = () => {
+  if (use0) {
+    return <MuiKonvaTest0 />;
+  }
+  return <PianoRoll numOfBars={8} ppqn={960} />;
 };
