@@ -2,7 +2,7 @@
 // Suggested code may be subject to a license. Learn more: ~LicenseLog:1424122781.
 import type Konva from "konva";
 import type React from "react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Group, Layer, Line, Rect, Stage, Text } from "react-konva";
 
 interface PianoRollProps {
@@ -35,6 +35,7 @@ function isWhiteKey(midiPitch: number): boolean {
   const note = midiPitch % 12;
   return [0, 2, 4, 5, 7, 9, 11].includes(note);
 }
+
 const LEFT_PANEL_SIZE = {
   w: 50,
 };
@@ -58,6 +59,17 @@ const PianoRoll: React.FC<PianoRollProps> = ({
   const [scrollY, setScrollY] = useState(0);
   const [stageSize, setStageSize] = useState({ width: 500, height: 500 });
 
+  const cs = useMemo(() => {
+    return {
+      vp2Stage(v: number) {
+        return v / zoom;
+      },
+      stage2Vp(v: number) {
+        return v * zoom;
+      },
+    };
+  }, [zoom]);
+
   const vp = {
     width: stageSize.width - LEFT_PANEL_SIZE.w,
     height: stageSize.height - TOP_PANEL_SIZE.h,
@@ -80,11 +92,11 @@ const PianoRoll: React.FC<PianoRollProps> = ({
   const barHeight = 128 * noteHeight; // ピアノロールの高さ（128ピッチ分の高さ）
 
   // scrollXのmin,maxを動的に算出
-  const scrollXMin = -(barWidth * numOfBars) + vp.width / zoom;
+  const scrollXMin = -(barWidth * numOfBars) + cs.vp2Stage(vp.width);
   const scrollXMax = 0;
 
   // scrollYのmin,maxを動的に算出
-  const scrollYMin = Math.min(0, -(barHeight - vp.height / zoom));
+  const scrollYMin = Math.min(0, -(barHeight - cs.vp2Stage(vp.height)));
   const scrollYMax = 0;
 
   useEffect(() => {
@@ -97,7 +109,7 @@ const PianoRoll: React.FC<PianoRollProps> = ({
 
   useEffect(() => {
     setScrollY(Math.max(scrollYMin, Math.min(scrollYMax, scrollY)));
-  }, [scrollY, scrollYMin, scrollYMax]);
+  }, [scrollY, scrollYMin]);
 
   useEffect(() => {
     const stage = stageRef.current;
@@ -124,7 +136,7 @@ const PianoRoll: React.FC<PianoRollProps> = ({
           key={`bar-${i}`}
           points={[i * barWidth, 0, i * barWidth, barHeight]} // 小節境界線
           stroke="black"
-          strokeWidth={2 / zoom}
+          strokeWidth={cs.vp2Stage(2)}
         />,
       );
     }
@@ -139,20 +151,20 @@ const PianoRoll: React.FC<PianoRollProps> = ({
           <Rect
             x={i * barWidth}
             width={barWidth}
-            height={TOP_PANEL_SIZE.h / zoom}
+            height={cs.vp2Stage(TOP_PANEL_SIZE.h)}
             stroke="black"
-            strokeWidth={2 / zoom}
+            strokeWidth={cs.vp2Stage(2)}
             fill={"rgba(0,0,0,0.1)"}
           />
           <Text
             x={i * barWidth}
             y={0}
             text={`${i + 1}`}
-            fontSize={12 / zoom}
+            fontSize={cs.vp2Stage(12)}
             fill={"black"}
             width={barWidth}
             align="left"
-            height={TOP_PANEL_SIZE.h / zoom}
+            height={cs.vp2Stage(TOP_PANEL_SIZE.h)}
             verticalAlign="top"
           />
         </Group>,
@@ -178,8 +190,8 @@ const PianoRoll: React.FC<PianoRollProps> = ({
             i * pitchSpacing,
           ]} // グリッド線
           stroke="gray"
-          strokeWidth={1 / zoom}
-          dash={[5 / zoom, 5 / zoom]} // 点線にする
+          strokeWidth={cs.vp2Stage(1)}
+          dash={[cs.vp2Stage(5), cs.vp2Stage(5)]}
         />,
       );
     }
@@ -202,19 +214,19 @@ const PianoRoll: React.FC<PianoRollProps> = ({
           <Rect
             x={0}
             y={yPos}
-            width={LEFT_PANEL_SIZE.w / zoom}
+            width={cs.vp2Stage(LEFT_PANEL_SIZE.w)}
             height={noteHeight}
             fill={color}
             stroke="black"
-            strokeWidth={1 / zoom}
+            strokeWidth={cs.vp2Stage(1)}
           />
           <Text
             x={0}
             y={yPos + 2}
             text={`${i}:${getNoteName(i)}`}
-            fontSize={12 / zoom}
+            fontSize={cs.vp2Stage(12)}
             fill={isWhiteKey(i) ? "black" : "#ddd"}
-            width={LEFT_PANEL_SIZE.w / zoom}
+            width={cs.vp2Stage(LEFT_PANEL_SIZE.w)}
             align="left"
             height={noteHeight}
             verticalAlign="middle"
@@ -294,23 +306,26 @@ const PianoRoll: React.FC<PianoRollProps> = ({
         }}
       >
         <Stage ref={stageRef} width={stageSize.width} height={stageSize.height}>
-          <Layer x={LEFT_PANEL_SIZE.w / zoom} y={TOP_PANEL_SIZE.h / zoom}>
+          <Layer
+            x={cs.vp2Stage(LEFT_PANEL_SIZE.w)}
+            y={cs.vp2Stage(TOP_PANEL_SIZE.h)}
+          >
             <Group ref={contentGroupRef}>
               {renderPitchGrid()}
               {renderBarLines()}
               {renderNotes()}
             </Group>
           </Layer>
-          <Layer x={0} y={TOP_PANEL_SIZE.h / zoom}>
+          <Layer x={cs.vp2Stage(0)} y={cs.vp2Stage(TOP_PANEL_SIZE.h)}>
             <Group ref={leftPanelGroupRef}>{renderPianoKeysAndLabels()}</Group>
           </Layer>
           <Layer>
             <Rect
-              width={stageSize.width / zoom}
-              height={TOP_PANEL_SIZE.h / zoom}
+              width={cs.vp2Stage(stageSize.width)}
+              height={cs.vp2Stage(TOP_PANEL_SIZE.h)}
               fill={"#ddd"}
             />
-            <Group y={0} x={LEFT_PANEL_SIZE.w / zoom}>
+            <Group y={cs.vp2Stage(0)} x={cs.vp2Stage(LEFT_PANEL_SIZE.w)}>
               <Group ref={topPanelGroupRef}>{renderBarHeaders()}</Group>
             </Group>
           </Layer>
