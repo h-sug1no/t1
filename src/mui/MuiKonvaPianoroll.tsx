@@ -73,23 +73,24 @@ const PianoRoll: React.FC<PianoRollProps> = ({
   const barHeight = 128 * noteHeight; // ピアノロールの高さ（128ピッチ分の高さ）
 
   // scrollXのmin,maxを動的に算出
-  const scrollXMax = Math.max(
-    0,
-    PIANO_LABEL_SIZE.w * zoom -
-      Math.min(PIANO_LABEL_SIZE.w * zoom, stageSize.width),
-  );
-  const scrollXMin = Math.min(
-    0,
-    -(
-      numOfBars * barWidth * zoom -
-      stageSize.width +
-      PIANO_LABEL_SIZE.w * zoom
-    ),
-  );
+  const scrollXMin = -(barWidth * numOfBars) + stageSize.width / zoom;
+  const scrollXMax = Math.max(0, PIANO_LABEL_SIZE.w / zoom);
 
   // scrollYのmin,maxを動的に算出
   const scrollYMin = Math.min(0, -(barHeight * zoom - stageSize.height));
   const scrollYMax = 0;
+
+  useEffect(() => {
+    setZoom(Math.max(zoomRangeMin, Math.min(zoomRangeMax, zoom)));
+  }, [zoom, zoomRangeMin, zoomRangeMax]);
+
+  useEffect(() => {
+    setScrollX(Math.max(scrollXMin, Math.min(scrollXMax, scrollX)));
+  }, [scrollX, scrollXMin, scrollXMax]);
+
+  useEffect(() => {
+    setScrollX(Math.max(scrollYMin, Math.min(scrollYMax, scrollY)));
+  }, [scrollY, scrollYMin]);
 
   useEffect(() => {
     const stage = stageRef.current;
@@ -224,7 +225,7 @@ const PianoRoll: React.FC<PianoRollProps> = ({
             type="range" // range sliderのまま
             min={scrollXMin}
             max={scrollXMax}
-            step="10"
+            step="0.0001"
             value={scrollX}
             onChange={(e) => setScrollX(Number.parseInt(e.target.value))}
           />
