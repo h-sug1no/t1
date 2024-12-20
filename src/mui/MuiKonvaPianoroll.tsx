@@ -35,8 +35,12 @@ function isWhiteKey(midiPitch: number): boolean {
   const note = midiPitch % 12;
   return [0, 2, 4, 5, 7, 9, 11].includes(note);
 }
-const PIANO_LABEL_SIZE = {
+const LEFT_PANEL_SIZE = {
   w: 50,
+};
+
+const TOP_PANEL_SIZE = {
+  h: 50,
 };
 
 const PianoRoll: React.FC<PianoRollProps> = ({
@@ -45,13 +49,19 @@ const PianoRoll: React.FC<PianoRollProps> = ({
   timeSig = { beats: 4, beatType: 4 },
 }) => {
   const stageRef = useRef<Konva.Stage | null>(null);
-  const pianoLayerRef = useRef<Konva.Layer | null>(null);
+  const contentGroupRef = useRef<Konva.Layer | null>(null);
+  const topPanelGroupRef = useRef<Konva.Layer | null>(null);
+  const leftPanelGroupRef = useRef<Konva.Layer | null>(null);
 
   const [zoom, setZoom] = useState(1.0);
   const [scrollX, setScrollX] = useState(0);
   const [scrollY, setScrollY] = useState(0);
   const [stageSize, setStageSize] = useState({ width: 500, height: 500 });
 
+  const vp = {
+    width: stageSize.width - LEFT_PANEL_SIZE.w,
+    height: stageSize.height - TOP_PANEL_SIZE.h,
+  };
   const minZoom = 0.0;
   const maxZoom = 1;
   // 1小節のtick数
@@ -63,21 +73,18 @@ const PianoRoll: React.FC<PianoRollProps> = ({
   const pitches = Array.from({ length: 128 }, (_, i) => i); // MIDIピッチ 0-127
 
   // ズーム範囲の動的な計算
-  const zoomRangeMin = Math.max(
-    minZoom,
-    stageSize.width / (numOfBars * barWidth + PIANO_LABEL_SIZE.w),
-  );
-  const zoomRangeMax = Math.min(maxZoom, stageSize.width / barWidth);
+  const zoomRangeMin = Math.max(minZoom, vp.width / (numOfBars * barWidth));
+  const zoomRangeMax = Math.min(maxZoom, vp.width / barWidth);
 
   const noteHeight = pixelsPerBeat / 4; // 各MIDIノートの高さ
   const barHeight = 128 * noteHeight; // ピアノロールの高さ（128ピッチ分の高さ）
 
   // scrollXのmin,maxを動的に算出
-  const scrollXMin = -(barWidth * numOfBars) + stageSize.width / zoom;
-  const scrollXMax = Math.max(0, PIANO_LABEL_SIZE.w / zoom);
+  const scrollXMin = -(barWidth * numOfBars) + vp.width / zoom;
+  const scrollXMax = 0;
 
   // scrollYのmin,maxを動的に算出
-  const scrollYMin = Math.min(0, -(barHeight * zoom - stageSize.height));
+  const scrollYMin = Math.min(0, -(barHeight - vp.height / zoom));
   const scrollYMax = 0;
 
   useEffect(() => {
@@ -86,21 +93,21 @@ const PianoRoll: React.FC<PianoRollProps> = ({
 
   useEffect(() => {
     setScrollX(Math.max(scrollXMin, Math.min(scrollXMax, scrollX)));
-  }, [scrollX, scrollXMin, scrollXMax]);
+  }, [scrollX, scrollXMin]);
 
   useEffect(() => {
-    setScrollX(Math.max(scrollYMin, Math.min(scrollYMax, scrollY)));
-  }, [scrollY, scrollYMin]);
+    setScrollY(Math.max(scrollYMin, Math.min(scrollYMax, scrollY)));
+  }, [scrollY, scrollYMin, scrollYMax]);
 
   useEffect(() => {
     const stage = stageRef.current;
     if (stage) {
       // スクロールとズームを設定
       stage.scale({ x: zoom, y: zoom });
-      if (pianoLayerRef.current) {
-        pianoLayerRef.current.x(scrollX);
-      }
-      stage.y(scrollY);
+      contentGroupRef.current?.x(scrollX);
+      topPanelGroupRef.current?.x(scrollX);
+      leftPanelGroupRef.current?.y(scrollY);
+      contentGroupRef.current?.y(scrollY);
       stage.batchDraw();
     }
   }, [zoom, scrollX, scrollY]);
@@ -122,6 +129,37 @@ const PianoRoll: React.FC<PianoRollProps> = ({
       );
     }
     return barLines;
+  };
+
+  const renderBarHeaders = () => {
+    const barHeaders: JSX.Element[] = [];
+    for (let i = 0; i <= numOfBars; i++) {
+      barHeaders.push(
+        <Group key={`barHeader-${i}`}>
+          <Rect
+            x={i * barWidth}
+            width={barWidth}
+            height={TOP_PANEL_SIZE.h / zoom}
+            stroke="black"
+            strokeWidth={2 / zoom}
+            fill={"rgba(0,0,0,0.1)"}
+          />
+          <Text
+            x={i * barWidth}
+            y={0}
+            text={`${i + 1}`}
+            fontSize={12 / zoom}
+            fill={"black"}
+            width={barWidth}
+            align="left"
+            height={TOP_PANEL_SIZE.h / zoom}
+            verticalAlign="top"
+          />
+        </Group>,
+      );
+    }
+
+    return barHeaders;
   };
 
   // ピッチグリッドを描画
@@ -164,7 +202,7 @@ const PianoRoll: React.FC<PianoRollProps> = ({
           <Rect
             x={0}
             y={yPos}
-            width={PIANO_LABEL_SIZE.w / zoom}
+            width={LEFT_PANEL_SIZE.w / zoom}
             height={noteHeight}
             fill={color}
             stroke="black"
@@ -176,7 +214,7 @@ const PianoRoll: React.FC<PianoRollProps> = ({
             text={`${i}:${getNoteName(i)}`}
             fontSize={12 / zoom}
             fill={isWhiteKey(i) ? "black" : "#ddd"}
-            width={PIANO_LABEL_SIZE.w / zoom}
+            width={LEFT_PANEL_SIZE.w / zoom}
             align="left"
             height={noteHeight}
             verticalAlign="middle"
@@ -256,12 +294,19 @@ const PianoRoll: React.FC<PianoRollProps> = ({
         }}
       >
         <Stage ref={stageRef} width={stageSize.width} height={stageSize.height}>
-          <Layer ref={pianoLayerRef}>
-            {renderPitchGrid()}
-            {renderBarLines()}
-            {renderNotes()}
+          <Layer x={LEFT_PANEL_SIZE.w / zoom} y={TOP_PANEL_SIZE.h / zoom}>
+            <Group ref={contentGroupRef}>
+              {renderPitchGrid()}
+              {renderBarLines()}
+              {renderNotes()}
+            </Group>
           </Layer>
-          <Layer x={0}>{renderPianoKeysAndLabels()}</Layer>
+          <Layer x={0} y={TOP_PANEL_SIZE.h / zoom}>
+            <Group ref={leftPanelGroupRef}>{renderPianoKeysAndLabels()}</Group>
+          </Layer>
+          <Layer y={0} x={LEFT_PANEL_SIZE.w / zoom}>
+            <Group ref={topPanelGroupRef}>{renderBarHeaders()}</Group>
+          </Layer>
         </Stage>
       </div>
     </div>
