@@ -305,6 +305,12 @@ const PianoRoll: React.FC<PianoRollProps> = ({
             <Group ref={leftPanelGroupRef}>{renderPianoKeysAndLabels()}</Group>
           </Layer>
           <Layer y={0} x={LEFT_PANEL_SIZE.w / zoom}>
+            <Rect
+              x={-LEFT_PANEL_SIZE.w / zoom}
+              width={stageSize.width / zoom}
+              height={TOP_PANEL_SIZE.h / zoom}
+              fill={"#ddd"}
+            />
             <Group ref={topPanelGroupRef}>{renderBarHeaders()}</Group>
           </Layer>
         </Stage>
