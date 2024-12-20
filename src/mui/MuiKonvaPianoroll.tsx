@@ -8,6 +8,10 @@ import { Group, Layer, Line, Rect, Stage, Text } from "react-konva";
 interface PianoRollProps {
   ppqn: number; // Pulses Per Quarter Note
   numOfBars: number; // 小節数
+  timeSig?: {
+    beats: number; // 1小節の拍数
+    beatType: number; // 拍子の種類 (4: 4分音符, 2: 2分音符, etc.)
+  };
 }
 
 function getNoteName(midiNote: number): string {
@@ -32,10 +36,14 @@ function isWhiteKey(midiPitch: number): boolean {
   return [0, 2, 4, 5, 7, 9, 11].includes(note);
 }
 const PIANO_LABEL_SIZE = {
-  w: 40,
+  w: 50,
 };
 
-const PianoRoll: React.FC<PianoRollProps> = ({ ppqn, numOfBars }) => {
+const PianoRoll: React.FC<PianoRollProps> = ({
+  ppqn,
+  numOfBars,
+  timeSig = { beats: 4, beatType: 4 },
+}) => {
   const stageRef = useRef<Konva.Stage | null>(null);
   const pianoLayerRef = useRef<Konva.Layer | null>(null);
 
@@ -44,14 +52,14 @@ const PianoRoll: React.FC<PianoRollProps> = ({ ppqn, numOfBars }) => {
   const [scrollY, setScrollY] = useState(0);
   const [stageSize, setStageSize] = useState({ width: 500, height: 500 });
 
-  const minZoom = 0.5;
-  const maxZoom = 2.0;
+  const minZoom = 0.0;
+  const maxZoom = 1;
   // 1小節のtick数
-  const ticksPerBar = ppqn * 4; // 1小節のtick数（4分音符の場合）
+  const ticksPerBar = ppqn * timeSig.beats * (4 / timeSig.beatType);
 
-  // 小節幅（ピクセル単位）
-  const barWidth = 100; // 1tickが100ピクセルに対応（適宜スケールを変更）
-
+  // 1拍あたりのピクセル数
+  const pixelsPerBeat = ticksPerBar;
+  const barWidth = pixelsPerBeat * timeSig.beats;
   const pitches = Array.from({ length: 128 }, (_, i) => i); // MIDIピッチ 0-127
 
   // ズーム範囲の動的な計算
@@ -61,7 +69,7 @@ const PianoRoll: React.FC<PianoRollProps> = ({ ppqn, numOfBars }) => {
   );
   const zoomRangeMax = Math.min(maxZoom, stageSize.width / barWidth);
 
-  const noteHeight = 10; // 各MIDIノートの高さ
+  const noteHeight = pixelsPerBeat / 4; // 各MIDIノートの高さ
   const barHeight = 128 * noteHeight; // ピアノロールの高さ（128ピッチ分の高さ）
 
   // scrollXのmin,maxを動的に算出
@@ -108,7 +116,7 @@ const PianoRoll: React.FC<PianoRollProps> = ({ ppqn, numOfBars }) => {
           key={`bar-${i}`}
           points={[i * barWidth, 0, i * barWidth, barHeight]} // 小節境界線
           stroke="black"
-          strokeWidth={2}
+          strokeWidth={2 / zoom}
         />,
       );
     }
@@ -131,8 +139,8 @@ const PianoRoll: React.FC<PianoRollProps> = ({ ppqn, numOfBars }) => {
             i * pitchSpacing,
           ]} // グリッド線
           stroke="gray"
-          strokeWidth={1}
-          dash={[5, 5]} // 点線にする
+          strokeWidth={1 / zoom}
+          dash={[5 / zoom, 5 / zoom]} // 点線にする
         />,
       );
     }
@@ -155,20 +163,22 @@ const PianoRoll: React.FC<PianoRollProps> = ({ ppqn, numOfBars }) => {
           <Rect
             x={0}
             y={yPos}
-            width={PIANO_LABEL_SIZE.w}
+            width={PIANO_LABEL_SIZE.w / zoom}
             height={noteHeight}
             fill={color}
             stroke="black"
-            strokeWidth={1}
+            strokeWidth={1 / zoom}
           />
           <Text
             x={0}
             y={yPos + 2}
             text={`${i}:${getNoteName(i)}`}
-            fontSize={8}
+            fontSize={12 / zoom}
             fill={isWhiteKey(i) ? "black" : "#ddd"}
-            width={PIANO_LABEL_SIZE.w}
-            align="center"
+            width={PIANO_LABEL_SIZE.w / zoom}
+            align="left"
+            height={noteHeight}
+            verticalAlign="middle"
           />
         </Group>,
       );
@@ -203,7 +213,7 @@ const PianoRoll: React.FC<PianoRollProps> = ({ ppqn, numOfBars }) => {
             type="range"
             min={zoomRangeMin}
             max={zoomRangeMax}
-            step="0.1"
+            step="0.0001"
             value={zoom}
             onChange={(e) => setZoom(Number.parseFloat(e.target.value))}
           />
