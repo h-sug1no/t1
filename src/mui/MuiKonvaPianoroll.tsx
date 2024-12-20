@@ -304,14 +304,15 @@ const PianoRoll: React.FC<PianoRollProps> = ({
           <Layer x={0} y={TOP_PANEL_SIZE.h / zoom}>
             <Group ref={leftPanelGroupRef}>{renderPianoKeysAndLabels()}</Group>
           </Layer>
-          <Layer y={0} x={LEFT_PANEL_SIZE.w / zoom}>
+          <Layer>
             <Rect
-              x={-LEFT_PANEL_SIZE.w / zoom}
               width={stageSize.width / zoom}
               height={TOP_PANEL_SIZE.h / zoom}
               fill={"#ddd"}
             />
-            <Group ref={topPanelGroupRef}>{renderBarHeaders()}</Group>
+            <Group y={0} x={LEFT_PANEL_SIZE.w / zoom}>
+              <Group ref={topPanelGroupRef}>{renderBarHeaders()}</Group>
+            </Group>
           </Layer>
         </Stage>
       </div>
