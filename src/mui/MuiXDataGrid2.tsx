@@ -211,15 +211,21 @@ const App: React.FC = () => {
                   columnCount,
                   rowIndex,
                   style,
+                  isScrolling,
                 }) => {
                   const row = data[rowIndex * columnCount + columnIndex] as any;
                   if (row) {
+                    console.log("isScrolling", isScrolling);
                     const { model } = row;
                     return (
                       <div className="cardContainer" style={{ ...style }}>
                         <div>{row.id}</div>
-                        <div>{model.name}</div>
-                        <div>{model.email}</div>
+                        {!isScrolling && (
+                          <>
+                            <div>{model.name}</div>
+                            <div>{model.email}</div>
+                          </>
+                        )}
                       </div>
                     );
                   }

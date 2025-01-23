@@ -14,6 +14,7 @@ export interface MuiVirtualGridRenderCardProps<T> {
   columnIndex: number;
   rowIndex: number;
   style: React.CSSProperties;
+  isScrolling: boolean | undefined;
 }
 
 interface MuiVirtualGridProps<T> {
@@ -141,12 +142,14 @@ export const MuiVirtualGrid = <T,>({
               style={{ width: "100% !important" }}
               initialScrollLeft={scrollPos?.scrollLeft}
               initialScrollTop={scrollPos?.scrollTop}
+              useIsScrolling
             >
               {({
                 columnIndex,
                 rowIndex,
                 style,
                 data,
+                isScrolling,
               }: GridChildComponentProps<T[]>) =>
                 renderCard({
                   data,
@@ -154,6 +157,7 @@ export const MuiVirtualGrid = <T,>({
                   columnIndex,
                   rowIndex,
                   style,
+                  isScrolling,
                 })
               }
             </Grid>
