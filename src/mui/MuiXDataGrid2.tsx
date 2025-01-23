@@ -17,11 +17,12 @@ import {
   useGridApiRef,
 } from "@mui/x-data-grid";
 import type React from "react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { MuiVirtualGrid } from "./MuiVirtualGrid";
 
 // 500個のサンプルデータを生成
 const generateSampleData = () => {
-  return Array.from({ length: 500 }, (_, id) => ({
+  return Array.from({ length: 5000 }, (_, id) => ({
     id,
     name: `Name ${id + 1}`,
     age: Math.floor(Math.random() * 50) + 20,
@@ -54,17 +55,23 @@ const TContainer = styled.div`
 }
 
 & .tableContainer {
-  width: 100%;
-  height: 100%;
+  width: calc(100vw - 200px);
+  height: calc(100vh - 200px);
   position: relative;
   & .cardView {
-    max-height: calc(100% - 130px);
+    box-sizing: border-box;
+    width: calc(100vw - 200px);
+    height: calc(100vh - 200px);
     position: absolute;
     top: 100px;
     left: 0px;
     margin: 10px;
     margin-right: 0;
 
+    .cardContainer {
+      border-radius: 5px;
+      border: solid gray 1px;
+    }
     & .selected .cardContainer {
       background-color: #ddf;
     }
@@ -77,6 +84,7 @@ const App: React.FC = () => {
   const [viewMode, setViewMode] = useState("table");
   const [gdState, setGDState] = useState({});
   const apiRef = useGridApiRef();
+  const gridRef = useRef(undefined);
 
   // @ts-ignore
   window.gdTest = () => {
@@ -191,6 +199,34 @@ const App: React.FC = () => {
               spacing={2}
               style={{ maxHeight: 400, overflowY: "auto" }}
             >
+              <MuiVirtualGrid<(typeof filteredData)[0]>
+                cardHeight={150}
+                cardWidth={150}
+                gutter={0}
+                itemsData={filteredData}
+                gridRef={gridRef}
+                renderCard={({
+                  data,
+                  columnIndex,
+                  columnCount,
+                  rowIndex,
+                  style,
+                }) => {
+                  const row = data[rowIndex * columnCount + columnIndex] as any;
+                  if (row) {
+                    const { model } = row;
+                    return (
+                      <div className="cardContainer" style={{ ...style }}>
+                        <div>{row.id}</div>
+                        <div>{model.name}</div>
+                        <div>{model.email}</div>
+                      </div>
+                    );
+                  }
+                  return null;
+                }}
+              />
+              {/*
               {filteredData.map(({ model: row }) => (
                 <Grid2
                   key={row.id}
@@ -214,6 +250,7 @@ const App: React.FC = () => {
                   </Card>
                 </Grid2>
               ))}
+            */}
             </Grid2>
           )}
         </div>
